@@ -1,4 +1,6 @@
 # Specify filepatterns you want git to ignore.
 
-OBJ
-USER/JLinkLog.txt
+Output
+Project/RVMDK（uv5）/JLinkLog.txt
+Project/RVMDK（uv5）/JLinkLog.txt
+Listing/

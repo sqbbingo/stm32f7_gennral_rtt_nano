@@ -1,16 +1,16 @@
 /**
   ******************************************************************************
-  * @file    Templates/Src/stm32f7xx.c
+  * @file    Templates/stm32f7xx_it.c 
   * @author  MCD Application Team
-  * @version V1.0.0
-  * @date    22-April-2016
+  * @version V1.0.2
+  * @date    18-November-2015 
   * @brief   Main Interrupt Service Routines.
   *          This file provides template for all exceptions handler and 
   *          peripherals interrupt service routine.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -38,9 +38,9 @@
   */
 
 /* Includes ------------------------------------------------------------------*/
-#include "main.h"
 #include "stm32f7xx_it.h"
-   
+#include "main.h"
+
 /** @addtogroup STM32F7xx_HAL_Examples
   * @{
   */
@@ -53,7 +53,6 @@
 /* Private define ------------------------------------------------------------*/
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
-
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
 
@@ -154,10 +153,11 @@ void DebugMon_Handler(void)
   * @param  None
   * @retval None
   */
-void SysTick_Handler(void)
-{
-  HAL_IncTick();
-}
+//void SysTick_Handler(void)
+//{
+//  HAL_IncTick();
+//}
+  
 
 /******************************************************************************/
 /*                 STM32F7xx Peripherals Interrupt Handlers                   */

@@ -10,9 +10,9 @@
 #include "stm32f7xx.h"
 #include "main.h"
 /* 开发板硬件bsp头文件 */
-//#include "./led/bsp_led.h"
-//#include "./delay/core_delay.h"   
-//#include "./usart/bsp_debug_usart.h"
+#include "./led/bsp_led.h"
+#include "./delay/core_delay.h"   
+#include "./usart/bsp_debug_usart.h"
 /*
 *************************************************************************
 *                               函数声明
