@@ -10,6 +10,7 @@
 
 #include <rthw.h>
 #include <rtthread.h>
+#include "sys.h"
 
 #if defined(RT_USING_USER_MAIN) && defined(RT_USING_HEAP)
 /*
@@ -44,7 +45,9 @@ void rt_os_tick_callback(void)
  */
 void rt_hw_board_init(void)
 {
-#error "TODO 1: OS Tick Configuration."
+    Cache_Enable();                 //打开L1-Cache
+    HAL_Init();				        //初始化HAL库
+    Stm32_Clock_Init(432,25,2,9);   //设置时钟,216Mhz 
     /* 
      * TODO 1: OS Tick Configuration
      * Enable the hardware timer and call the rt_os_tick_callback function

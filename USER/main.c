@@ -3,6 +3,7 @@
 #include "usart.h"
 #include "led.h"
 #include "key.h"
+#include "rtthread.h"
 /************************************************
  ALIENTEK 阿波罗STM32F7开发板 实验3
  串口实验-HAL库函数版
@@ -17,9 +18,6 @@ int main(void)
 {
     u8 len;	
 	u16 times=0; 
-    Cache_Enable();                 //打开L1-Cache
-    HAL_Init();				        //初始化HAL库
-    Stm32_Clock_Init(432,25,2,9);   //设置时钟,216Mhz 
     delay_init(216);                //延时初始化
 	uart_init(115200);		        //串口初始化
     LED_Init();                     //初始化LED
