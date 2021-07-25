@@ -20,6 +20,5 @@
 */
 void rt_hw_board_init(void);
 void SysTick_Handler(void);
-char rt_hw_console_getchar(void);
 
 #endif /* __BOARD_H__ */

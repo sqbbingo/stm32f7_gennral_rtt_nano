@@ -1,23 +1,23 @@
 /**
 	******************************************************************************
 	* @file    bsp_debug_usart.c
-	* @author  fire
+	* @author  bingo
 	* @version V1.0
-	* @date    2016-xx-xx
+	* @date    2021-07-25
 	* @brief   使用串口1，重定向c库printf函数到usart端口，中断接收模式
-	******************************************************************************
-	* @attention
-	*
-	* 实验平台:秉火  STM32 F746 开发板
-	* 论坛    :http://www.firebbs.cn
-	* 淘宝    :http://firestm32.taobao.com
-	*
 	******************************************************************************
 	*/
 
+#include <rtthread.h>
 #include "./usart/bsp_debug_usart.h"
+#include "ringbuffer.h"
 
-UART_HandleTypeDef UartHandle;
+#define DEBUG_UART_RX_BUF_LEN 16
+
+UART_HandleTypeDef DebugUartHandle;
+rt_uint8_t debug_uart_rx_buf[DEBUG_UART_RX_BUF_LEN] = {0};
+struct rt_ringbuffer  debug_uart_rxcb;         /* 定义一个 ringbuffer cb */
+static struct rt_semaphore shell_rx_sem; /* 定义一个静态信号量 */
 extern uint8_t ucTemp;
 /**
 * @brief  DEBUG_USART GPIO 配置,工作模式配置。115200 8-N-1
@@ -29,6 +29,11 @@ void DEBUG_USART_Config(void)
 	GPIO_InitTypeDef GPIO_InitStruct;
 	RCC_PeriphCLKInitTypeDef RCC_PeriphClkInit;
 
+	/* 初始化串口接收 ringbuffer  */
+	rt_ringbuffer_init(&debug_uart_rxcb, debug_uart_rx_buf, DEBUG_UART_RX_BUF_LEN);
+
+	/* 初始化串口接收数据的信号量 */
+	rt_sem_init(&(shell_rx_sem), "shell_rx", 0, 0);
 
 	/* 配置串口1时钟源*/
 	RCC_PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_UARTx;
@@ -58,23 +63,23 @@ void DEBUG_USART_Config(void)
 	HAL_GPIO_Init(DEBUG_USART_RX_GPIO_PORT, &GPIO_InitStruct);
 
 	/* 配置串DEBUG_USART 模式 */
-	UartHandle.Instance = DEBUG_USART;
-	UartHandle.Init.BaudRate = 115200;
-	UartHandle.Init.WordLength = UART_WORDLENGTH_8B;
-	UartHandle.Init.StopBits = UART_STOPBITS_1;
-	UartHandle.Init.Parity = UART_PARITY_NONE;
-	UartHandle.Init.Mode = UART_MODE_TX_RX;
-	UartHandle.Init.HwFlowCtl = UART_HWCONTROL_NONE;
-	UartHandle.Init.OverSampling = UART_OVERSAMPLING_16;
-	UartHandle.Init.OneBitSampling = UART_ONEBIT_SAMPLING_DISABLED;
-	UartHandle.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_NO_INIT;
-	HAL_UART_Init(&UartHandle);
+	DebugUartHandle.Instance = DEBUG_USART;
+	DebugUartHandle.Init.BaudRate = 115200;
+	DebugUartHandle.Init.WordLength = UART_WORDLENGTH_8B;
+	DebugUartHandle.Init.StopBits = UART_STOPBITS_1;
+	DebugUartHandle.Init.Parity = UART_PARITY_NONE;
+	DebugUartHandle.Init.Mode = UART_MODE_TX_RX;
+	DebugUartHandle.Init.HwFlowCtl = UART_HWCONTROL_NONE;
+	DebugUartHandle.Init.OverSampling = UART_OVERSAMPLING_16;
+	DebugUartHandle.Init.OneBitSampling = UART_ONEBIT_SAMPLING_DISABLED;
+	DebugUartHandle.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_NO_INIT;
+	HAL_UART_Init(&DebugUartHandle);
 
 	/*串口1中断初始化 */
-//    HAL_NVIC_SetPriority(DEBUG_USART_IRQ, 0, 0);
-//    HAL_NVIC_EnableIRQ(DEBUG_USART_IRQ);
+	HAL_NVIC_SetPriority(DEBUG_USART_IRQ, 3, 3);
+	HAL_NVIC_EnableIRQ(DEBUG_USART_IRQ);
 	/*配置串口接收中断 */
-//    __HAL_UART_ENABLE_IT(&UartHandle,UART_IT_RXNE);
+	__HAL_UART_ENABLE_IT(&DebugUartHandle, UART_IT_RXNE);
 }
 
 
@@ -84,7 +89,7 @@ void Usart_SendString(uint8_t *str)
 	unsigned int k = 0;
 	do
 	{
-		HAL_UART_Transmit(&UartHandle, (uint8_t *)(str + k) , 1, 1000);
+		HAL_UART_Transmit(&DebugUartHandle, (uint8_t *)(str + k) , 1, 1000);
 		k++;
 	} while (*(str + k) != '\0');
 
@@ -93,7 +98,7 @@ void Usart_SendString(uint8_t *str)
 int fputc(int ch, FILE *f)
 {
 	/* 发送一个字节数据到串口DEBUG_USART */
-	HAL_UART_Transmit(&UartHandle, (uint8_t *)&ch, 1, 1000);
+	HAL_UART_Transmit(&DebugUartHandle, (uint8_t *)&ch, 1, 1000);
 
 	return (ch);
 }
@@ -103,7 +108,73 @@ int fgetc(FILE *f)
 {
 
 	int ch;
-	HAL_UART_Receive(&UartHandle, (uint8_t *)&ch, 1, 1000);
+	HAL_UART_Receive(&DebugUartHandle, (uint8_t *)&ch, 1, 1000);
 	return (ch);
+}
+
+void rt_hw_console_output(const char *str)
+{
+	/* 进入临界段 */
+	rt_enter_critical();
+
+	/* 直到字符串结束 */
+	while (*str != '\0')
+	{
+		/* 换行 */
+		if (*str == '\n')
+		{
+			//			HAL_UART_Transmit( &DebugUartHandle,(uint8_t *)'\r',1,1000);
+		}
+		HAL_UART_Transmit( &DebugUartHandle, (uint8_t *)(str++), 1, 1000);
+	}
+
+	/* 退出临界段 */
+	rt_exit_critical();
+
+}
+
+/* 移植 FinSH，实现命令行交互, 需要添加 FinSH 源码，然后再对接 rt_hw_console_getchar */
+/* 中断方式 */
+char rt_hw_console_getchar(void)
+{
+	char ch = 0;
+
+	/* 从 ringbuffer 中拿出数据 */
+	while (rt_ringbuffer_getchar(&debug_uart_rxcb, (rt_uint8_t *)&ch) != 1)
+	{
+		rt_sem_take(&shell_rx_sem, RT_WAITING_FOREVER);
+	}
+	return ch;
+}
+
+/* uart 中断 */
+void DEBUG_USART_IRQHandler(void)
+{
+	int ch = -1;
+	/* enter interrupt */
+	rt_interrupt_enter();          //在中断中一定要调用这对函数，进入中断
+
+	if ((__HAL_UART_GET_FLAG(&(DebugUartHandle), UART_FLAG_RXNE) != RESET) &&
+	        (__HAL_UART_GET_IT_SOURCE(&(DebugUartHandle), UART_IT_RXNE) != RESET))
+	{
+		while (1)
+		{
+			ch = -1;
+			if (__HAL_UART_GET_FLAG(&(DebugUartHandle), UART_FLAG_RXNE) != RESET)
+			{
+				ch =  DebugUartHandle.Instance->RDR & 0xff;
+			}
+			if (ch == -1)
+			{
+				break;
+			}
+			/* 读取到数据，将数据存入 ringbuffer */
+			rt_ringbuffer_putchar(&debug_uart_rxcb, ch);
+		}
+		rt_sem_release(&shell_rx_sem);
+	}
+
+	/* leave interrupt */
+	rt_interrupt_leave();    //在中断中一定要调用这对函数，离开中断
 }
 /*********************************************END OF FILE**********************/

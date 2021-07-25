@@ -153,45 +153,6 @@ static int uart_init(void)
 }
 INIT_BOARD_EXPORT(uart_init);
 
-void rt_hw_console_output(const char *str)
-{
-	/* 进入临界段 */
-	rt_enter_critical();
-
-	/* 直到字符串结束 */
-	while (*str != '\0')
-	{
-		/* 换行 */
-		if (*str == '\n')
-		{
-			//			HAL_UART_Transmit( &UartHandle,(uint8_t *)'\r',1,1000);
-		}
-		HAL_UART_Transmit( &UartHandle, (uint8_t *)(str++), 1, 1000);
-	}
-
-	/* 退出临界段 */
-	rt_exit_critical();
-
-}
-
-char rt_hw_console_getchar(void)
-{
-	int ch = -1;
-
-	if (__HAL_UART_GET_FLAG(&UartHandle, UART_FLAG_RXNE) != RESET)
-	{
-		HAL_UART_Receive(&UartHandle, (uint8_t *)&ch, 1, 0xFFFF);;
-	}
-	else
-	{
-		if (__HAL_UART_GET_FLAG(&UartHandle, UART_FLAG_ORE) != RESET)
-		{
-			__HAL_UART_CLEAR_OREFLAG(&UartHandle);
-		}
-		rt_thread_mdelay(10);
-	}
-	return ch;
-}
 
 #endif
 
