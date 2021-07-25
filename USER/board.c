@@ -174,6 +174,24 @@ void rt_hw_console_output(const char *str)
 
 }
 
+char rt_hw_console_getchar(void)
+{
+	int ch = -1;
+	
+    if (__HAL_UART_GET_FLAG(&UartHandle, UART_FLAG_RXNE) != RESET)
+    {
+        HAL_UART_Receive(&UartHandle, (uint8_t *)&ch, 1, 0xFFFF);;
+    }
+    else
+    {
+        if(__HAL_UART_GET_FLAG(&UartHandle, UART_FLAG_ORE) != RESET)
+        {
+            __HAL_UART_CLEAR_OREFLAG(&UartHandle);
+        }
+        rt_thread_mdelay(10);
+    }
+    return ch;
+}
 
 #endif
 

@@ -1,6 +1,8 @@
 # Specify filepatterns you want git to ignore.
 
 Output
-Project/RVMDK（uv5）/JLinkLog.txt
-Project/RVMDK（uv5）/JLinkLog.txt
 Listing/
+Project/RVMDK（uv5）/EventRecorderStub.scvd
+Project/RVMDK（uv5）/JLinkLog.txt
+Project/RVMDK（uv5）/RT-Thread.uvguix.s
+Project/RVMDK（uv5）/RT-Thread.uvoptx

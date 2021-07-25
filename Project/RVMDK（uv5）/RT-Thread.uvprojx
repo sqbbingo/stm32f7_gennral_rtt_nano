@@ -338,7 +338,7 @@
               <MiscControls></MiscControls>
               <Define>USE_HAL_DRIVER,STM32F767xx</Define>
               <Undefine></Undefine>
-              <IncludePath>..\..\Libraries\CMSIS\Include;..\..\Libraries\CMSIS\Device\ST\STM32F7xx\Include;..\..\Libraries\STM32F7xx_HAL_Driver\Inc;..\..\User;..\..\rtthread\3.1.5\include;..\..\User\bsp</IncludePath>
+              <IncludePath>..\..\Libraries\CMSIS\Include;..\..\Libraries\CMSIS\Device\ST\STM32F7xx\Include;..\..\Libraries\STM32F7xx_HAL_Driver\Inc;..\..\User;..\..\rtthread\3.1.5\include;..\..\User\bsp;..\..\rtthread\3.1.5\components\finsh</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -861,6 +861,31 @@
               <FileName>必读说明.txt</FileName>
               <FileType>5</FileType>
               <FilePath>..\..\必读说明.txt</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>rtt/components/finsh</GroupName>
+          <Files>
+            <File>
+              <FileName>cmd.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\rtthread\3.1.5\components\finsh\cmd.c</FilePath>
+            </File>
+            <File>
+              <FileName>finsh_port.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\rtthread\3.1.5\components\finsh\finsh_port.c</FilePath>
+            </File>
+            <File>
+              <FileName>msh.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\rtthread\3.1.5\components\finsh\msh.c</FilePath>
+            </File>
+            <File>
+              <FileName>shell.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\rtthread\3.1.5\components\finsh\shell.c</FilePath>
             </File>
           </Files>
         </Group>
