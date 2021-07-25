@@ -10,6 +10,8 @@
       <TargetName>Fire_RT-Thread</TargetName>
       <ToolsetNumber>0x4</ToolsetNumber>
       <ToolsetName>ARM-ADS</ToolsetName>
+      <pCCUsed>5060750::V5.06 update 6 (build 750)::ARMCC</pCCUsed>
+      <uAC6>0</uAC6>
       <TargetOption>
         <TargetCommonOption>
           <Device>STM32F767IGTx</Device>
@@ -124,47 +126,6 @@
             <HexOffset>0</HexOffset>
             <Oh166RecLen>16</Oh166RecLen>
           </OPTHX>
-          <Simulator>
-            <UseSimulator>0</UseSimulator>
-            <LoadApplicationAtStartup>1</LoadApplicationAtStartup>
-            <RunToMain>1</RunToMain>
-            <RestoreBreakpoints>1</RestoreBreakpoints>
-            <RestoreWatchpoints>1</RestoreWatchpoints>
-            <RestoreMemoryDisplay>1</RestoreMemoryDisplay>
-            <RestoreFunctions>1</RestoreFunctions>
-            <RestoreToolbox>1</RestoreToolbox>
-            <LimitSpeedToRealTime>0</LimitSpeedToRealTime>
-            <RestoreSysVw>1</RestoreSysVw>
-          </Simulator>
-          <Target>
-            <UseTarget>1</UseTarget>
-            <LoadApplicationAtStartup>1</LoadApplicationAtStartup>
-            <RunToMain>1</RunToMain>
-            <RestoreBreakpoints>1</RestoreBreakpoints>
-            <RestoreWatchpoints>1</RestoreWatchpoints>
-            <RestoreMemoryDisplay>1</RestoreMemoryDisplay>
-            <RestoreFunctions>0</RestoreFunctions>
-            <RestoreToolbox>1</RestoreToolbox>
-            <RestoreTracepoints>1</RestoreTracepoints>
-            <RestoreSysVw>1</RestoreSysVw>
-          </Target>
-          <RunDebugAfterBuild>0</RunDebugAfterBuild>
-          <TargetSelection>6</TargetSelection>
-          <SimDlls>
-            <CpuDll></CpuDll>
-            <CpuDllArguments></CpuDllArguments>
-            <PeripheralDll></PeripheralDll>
-            <PeripheralDllArguments></PeripheralDllArguments>
-            <InitializationFile></InitializationFile>
-          </SimDlls>
-          <TargetDlls>
-            <CpuDll></CpuDll>
-            <CpuDllArguments></CpuDllArguments>
-            <PeripheralDll></PeripheralDll>
-            <PeripheralDllArguments></PeripheralDllArguments>
-            <InitializationFile></InitializationFile>
-            <Driver>Segger\JL2CM3.dll</Driver>
-          </TargetDlls>
         </DebugOption>
         <Utilities>
           <Flash1>
@@ -223,12 +184,14 @@
             <hadXRAM>0</hadXRAM>
             <uocXRam>0</uocXRam>
             <RvdsVP>3</RvdsVP>
+            <RvdsMve>0</RvdsMve>
             <hadIRAM2>1</hadIRAM2>
             <hadIROM2>1</hadIROM2>
             <StupSel>8</StupSel>
             <useUlib>1</useUlib>
             <EndSel>0</EndSel>
             <uLtcg>0</uLtcg>
+            <nSecure>0</nSecure>
             <RoSelD>3</RoSelD>
             <RwSelD>3</RwSelD>
             <CodeSel>0</CodeSel>
@@ -362,14 +325,20 @@
             <uThumb>0</uThumb>
             <uSurpInc>0</uSurpInc>
             <uC99>1</uC99>
+            <uGnu>0</uGnu>
             <useXO>0</useXO>
             <v6Lang>0</v6Lang>
             <v6LangP>0</v6LangP>
+            <vShortEn>1</vShortEn>
+            <vShortWch>1</vShortWch>
+            <v6Lto>0</v6Lto>
+            <v6WtE>0</v6WtE>
+            <v6Rtti>0</v6Rtti>
             <VariousControls>
               <MiscControls></MiscControls>
               <Define>USE_HAL_DRIVER,STM32F767xx</Define>
               <Undefine></Undefine>
-              <IncludePath>..\..\Libraries\CMSIS\Include;..\..\Libraries\CMSIS\Device\ST\STM32F7xx\Include;..\..\Libraries\STM32F7xx_HAL_Driver\Inc;..\..\User;..\..\rtthread\3.0.3\components\finsh;..\..\rtthread\3.0.3\include\libc;..\..\rtthread\3.0.3\include;..\..\User\bsp</IncludePath>
+              <IncludePath>..\..\Libraries\CMSIS\Include;..\..\Libraries\CMSIS\Device\ST\STM32F7xx\Include;..\..\Libraries\STM32F7xx_HAL_Driver\Inc;..\..\User;..\..\rtthread\3.1.5\include;..\..\User\bsp</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -382,6 +351,7 @@
             <NoWarn>0</NoWarn>
             <uSurpInc>0</uSurpInc>
             <useXO>0</useXO>
+            <uClangAs>0</uClangAs>
             <VariousControls>
               <MiscControls></MiscControls>
               <Define></Define>
@@ -790,77 +760,77 @@
             <File>
               <FileName>clock.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\rtthread\3.0.3\src\clock.c</FilePath>
+              <FilePath>..\..\rtthread\3.1.5\src\clock.c</FilePath>
             </File>
             <File>
               <FileName>components.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\rtthread\3.0.3\src\components.c</FilePath>
+              <FilePath>..\..\rtthread\3.1.5\src\components.c</FilePath>
             </File>
             <File>
-              <FileName>device.c</FileName>
+              <FileName>cpu.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\rtthread\3.0.3\src\device.c</FilePath>
+              <FilePath>..\..\rtthread\3.1.5\src\cpu.c</FilePath>
             </File>
             <File>
               <FileName>idle.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\rtthread\3.0.3\src\idle.c</FilePath>
+              <FilePath>..\..\rtthread\3.1.5\src\idle.c</FilePath>
             </File>
             <File>
               <FileName>ipc.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\rtthread\3.0.3\src\ipc.c</FilePath>
+              <FilePath>..\..\rtthread\3.1.5\src\ipc.c</FilePath>
             </File>
             <File>
               <FileName>irq.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\rtthread\3.0.3\src\irq.c</FilePath>
+              <FilePath>..\..\rtthread\3.1.5\src\irq.c</FilePath>
             </File>
             <File>
               <FileName>kservice.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\rtthread\3.0.3\src\kservice.c</FilePath>
+              <FilePath>..\..\rtthread\3.1.5\src\kservice.c</FilePath>
             </File>
             <File>
               <FileName>mem.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\rtthread\3.0.3\src\mem.c</FilePath>
+              <FilePath>..\..\rtthread\3.1.5\src\mem.c</FilePath>
             </File>
             <File>
               <FileName>memheap.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\rtthread\3.0.3\src\memheap.c</FilePath>
+              <FilePath>..\..\rtthread\3.1.5\src\memheap.c</FilePath>
             </File>
             <File>
               <FileName>mempool.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\rtthread\3.0.3\src\mempool.c</FilePath>
+              <FilePath>..\..\rtthread\3.1.5\src\mempool.c</FilePath>
             </File>
             <File>
               <FileName>object.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\rtthread\3.0.3\src\object.c</FilePath>
+              <FilePath>..\..\rtthread\3.1.5\src\object.c</FilePath>
             </File>
             <File>
               <FileName>scheduler.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\rtthread\3.0.3\src\scheduler.c</FilePath>
+              <FilePath>..\..\rtthread\3.1.5\src\scheduler.c</FilePath>
             </File>
             <File>
-              <FileName>signal.c</FileName>
+              <FileName>slab.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\rtthread\3.0.3\src\signal.c</FilePath>
+              <FilePath>..\..\rtthread\3.1.5\src\slab.c</FilePath>
             </File>
             <File>
               <FileName>thread.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\rtthread\3.0.3\src\thread.c</FilePath>
+              <FilePath>..\..\rtthread\3.1.5\src\thread.c</FilePath>
             </File>
             <File>
               <FileName>timer.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\rtthread\3.0.3\src\timer.c</FilePath>
+              <FilePath>..\..\rtthread\3.1.5\src\timer.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -870,12 +840,17 @@
             <File>
               <FileName>context_rvds.S</FileName>
               <FileType>2</FileType>
-              <FilePath>..\..\rtthread\3.0.3\libcpu\arm\cortex-m7\context_rvds.S</FilePath>
+              <FilePath>..\..\rtthread\3.1.5\libcpu\arm\cortex-m7\context_rvds.S</FilePath>
+            </File>
+            <File>
+              <FileName>cpu_cache.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\rtthread\3.1.5\libcpu\arm\cortex-m7\cpu_cache.c</FilePath>
             </File>
             <File>
               <FileName>cpuport.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\rtthread\3.0.3\libcpu\arm\cortex-m7\cpuport.c</FilePath>
+              <FilePath>..\..\rtthread\3.1.5\libcpu\arm\cortex-m7\cpuport.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -892,5 +867,11 @@
       </Groups>
     </Target>
   </Targets>
+
+  <RTE>
+    <apis/>
+    <components/>
+    <files/>
+  </RTE>
 
 </Project>

@@ -31,7 +31,7 @@ RT_WEAK void *rt_heap_end_get(void)
 }
 #endif
 
-void rt_os_tick_callback(void)
+void SysTick_Handler(void)
 {
     rt_interrupt_enter();
     
