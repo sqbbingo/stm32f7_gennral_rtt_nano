@@ -1,56 +1,56 @@
 /**
-  ******************************************************************************
-  * @file    bsp_exti.c
-  * @author  fire
-  * @version V1.0
-  * @date    2016-xx-xx
-  * @brief   I/OÏßÖĞ¶ÏÓ¦ÓÃbsp
-  ******************************************************************************
-  * @attention
-  *
-  * ÊµÑéÆ½Ì¨:±ü»ğ  STM32 F746 ¿ª·¢°å 
-  * ÂÛÌ³    :http://www.firebbs.cn
-  * ÌÔ±¦    :http://firestm32.taobao.com
-  *
-  ******************************************************************************
-  */
-  
+	******************************************************************************
+	* @file    bsp_exti.c
+	* @author  fire
+	* @version V1.0
+	* @date    2016-xx-xx
+	* @brief   I/Oçº¿ä¸­æ–­åº”ç”¨bsp
+	******************************************************************************
+	* @attention
+	*
+	* å®éªŒå¹³å°:ç§‰ç«  STM32 F746 å¼€å‘æ¿
+	* è®ºå›    :http://www.firebbs.cn
+	* æ·˜å®    :http://firestm32.taobao.com
+	*
+	******************************************************************************
+	*/
+
 #include "./key/bsp_exti.h"
 
 
- /**
-  * @brief  ÅäÖÃ PA0 ÎªÏßÖĞ¶Ï¿Ú£¬²¢ÉèÖÃÖĞ¶ÏÓÅÏÈ¼¶
-  * @param  ÎŞ
-  * @retval ÎŞ
-  */
+/**
+ * @brief  é…ç½® PA0 ä¸ºçº¿ä¸­æ–­å£ï¼Œå¹¶è®¾ç½®ä¸­æ–­ä¼˜å…ˆçº§
+ * @param  æ— 
+ * @retval æ— 
+ */
 void EXTI_Key_Config(void)
 {
-    GPIO_InitTypeDef GPIO_InitStructure; 
+	GPIO_InitTypeDef GPIO_InitStructure;
 
-    /*¿ªÆô°´¼üGPIO¿ÚµÄÊ±ÖÓ*/
-    KEY1_INT_GPIO_CLK_ENABLE();
-    KEY2_INT_GPIO_CLK_ENABLE();
+	/*å¼€å¯æŒ‰é”®GPIOå£çš„æ—¶é’Ÿ*/
+	KEY1_INT_GPIO_CLK_ENABLE();
+	KEY2_INT_GPIO_CLK_ENABLE();
 
-    /* Ñ¡Ôñ°´¼ü1µÄÒı½Å */ 
-    GPIO_InitStructure.Pin = KEY1_INT_GPIO_PIN;
-    /* ÉèÖÃÒı½ÅÎªÊäÈëÄ£Ê½ */ 
-    GPIO_InitStructure.Mode = GPIO_MODE_IT_RISING;	    		
-    /* ÉèÖÃÒı½Å²»ÉÏÀ­Ò²²»ÏÂÀ­ */
-    GPIO_InitStructure.Pull = GPIO_NOPULL;
-    /* Ê¹ÓÃÉÏÃæµÄ½á¹¹Ìå³õÊ¼»¯°´¼ü */
-    HAL_GPIO_Init(KEY1_INT_GPIO_PORT, &GPIO_InitStructure); 
-    /* ÅäÖÃ EXTI ÖĞ¶ÏÔ´ µ½key1 Òı½Å¡¢ÅäÖÃÖĞ¶ÏÓÅÏÈ¼¶*/
-    HAL_NVIC_SetPriority(KEY1_INT_EXTI_IRQ, 0, 0);
-    /* Ê¹ÄÜÖĞ¶Ï */
-    HAL_NVIC_EnableIRQ(KEY1_INT_EXTI_IRQ);
+	/* é€‰æ‹©æŒ‰é”®1çš„å¼•è„š */
+	GPIO_InitStructure.Pin = KEY1_INT_GPIO_PIN;
+	/* è®¾ç½®å¼•è„šä¸ºè¾“å…¥æ¨¡å¼ */
+	GPIO_InitStructure.Mode = GPIO_MODE_IT_RISING;
+	/* è®¾ç½®å¼•è„šä¸ä¸Šæ‹‰ä¹Ÿä¸ä¸‹æ‹‰ */
+	GPIO_InitStructure.Pull = GPIO_NOPULL;
+	/* ä½¿ç”¨ä¸Šé¢çš„ç»“æ„ä½“åˆå§‹åŒ–æŒ‰é”® */
+	HAL_GPIO_Init(KEY1_INT_GPIO_PORT, &GPIO_InitStructure);
+	/* é…ç½® EXTI ä¸­æ–­æº åˆ°key1 å¼•è„šã€é…ç½®ä¸­æ–­ä¼˜å…ˆçº§*/
+	HAL_NVIC_SetPriority(KEY1_INT_EXTI_IRQ, 0, 0);
+	/* ä½¿èƒ½ä¸­æ–­ */
+	HAL_NVIC_EnableIRQ(KEY1_INT_EXTI_IRQ);
 
-    /* Ñ¡Ôñ°´¼ü2µÄÒı½Å */ 
-    GPIO_InitStructure.Pin = KEY2_INT_GPIO_PIN;  
-    /* ÆäËûÅäÖÃÓëÉÏÃæÏàÍ¬ */
-    HAL_GPIO_Init(KEY2_INT_GPIO_PORT, &GPIO_InitStructure);      
-    /* ÅäÖÃ EXTI ÖĞ¶ÏÔ´ µ½key1 Òı½Å¡¢ÅäÖÃÖĞ¶ÏÓÅÏÈ¼¶*/
-    HAL_NVIC_SetPriority(KEY2_INT_EXTI_IRQ, 0, 0);
-    /* Ê¹ÄÜÖĞ¶Ï */
-    HAL_NVIC_EnableIRQ(KEY2_INT_EXTI_IRQ);
+	/* é€‰æ‹©æŒ‰é”®2çš„å¼•è„š */
+	GPIO_InitStructure.Pin = KEY2_INT_GPIO_PIN;
+	/* å…¶ä»–é…ç½®ä¸ä¸Šé¢ç›¸åŒ */
+	HAL_GPIO_Init(KEY2_INT_GPIO_PORT, &GPIO_InitStructure);
+	/* é…ç½® EXTI ä¸­æ–­æº åˆ°key1 å¼•è„šã€é…ç½®ä¸­æ–­ä¼˜å…ˆçº§*/
+	HAL_NVIC_SetPriority(KEY2_INT_EXTI_IRQ, 0, 0);
+	/* ä½¿èƒ½ä¸­æ–­ */
+	HAL_NVIC_EnableIRQ(KEY2_INT_EXTI_IRQ);
 }
 /*********************************************END OF FILE**********************/

@@ -4,68 +4,68 @@
   * @author  fire
   * @version V1.0
   * @date    2017-xx-xx
-  * @brief   ledÓ¦ÓÃº¯Êý½Ó¿Ú
+  * @brief   ledåº”ç”¨å‡½æ•°æŽ¥å£
   ******************************************************************************
   * @attention
   *
-  * ÊµÑéÆ½Ì¨:±ü»ð  STM32 F767 ¿ª·¢°å  
-  * ÂÛÌ³    :http://www.firebbs.cn
-  * ÌÔ±¦    :http://firestm32.taobao.com
+  * å®žéªŒå¹³å°:ç§‰ç«  STM32 F767 å¼€å‘æ¿
+  * è®ºå›    :http://www.firebbs.cn
+  * æ·˜å®    :http://firestm32.taobao.com
   *
   ******************************************************************************
   */
-  
-#include "./led/bsp_led.h"   
 
- /**
-  * @brief  ³õÊ¼»¯¿ØÖÆLEDµÄIO
-  * @param  ÎÞ
-  * @retval ÎÞ
-  */
+#include "./led/bsp_led.h"
+
+/**
+ * @brief  åˆå§‹åŒ–æŽ§åˆ¶LEDçš„IO
+ * @param  æ— 
+ * @retval æ— 
+ */
 void LED_GPIO_Config(void)
-{		
-		
-    /*¶¨ÒåÒ»¸öGPIO_InitTypeDefÀàÐÍµÄ½á¹¹Ìå*/
-    GPIO_InitTypeDef  GPIO_InitStruct;
+{
 
-    /*¿ªÆôLEDÏà¹ØµÄGPIOÍâÉèÊ±ÖÓ*/
-    LED1_GPIO_CLK_ENABLE();
-    LED2_GPIO_CLK_ENABLE();
-    LED3_GPIO_CLK_ENABLE();
-    LED4_GPIO_CLK_ENABLE();
+	/*å®šä¹‰ä¸€ä¸ªGPIO_InitTypeDefç±»åž‹çš„ç»“æž„ä½“*/
+	GPIO_InitTypeDef  GPIO_InitStruct;
 
-    /*Ñ¡ÔñÒª¿ØÖÆµÄGPIOÒý½Å*/															   
-    GPIO_InitStruct.Pin = LED1_PIN;	
+	/*å¼€å¯LEDç›¸å…³çš„GPIOå¤–è®¾æ—¶é’Ÿ*/
+	LED1_GPIO_CLK_ENABLE();
+	LED2_GPIO_CLK_ENABLE();
+	LED3_GPIO_CLK_ENABLE();
+	LED4_GPIO_CLK_ENABLE();
 
-    /*ÉèÖÃÒý½ÅµÄÊä³öÀàÐÍÎªÍÆÍìÊä³ö*/
-    GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;  
+	/*é€‰æ‹©è¦æŽ§åˆ¶çš„GPIOå¼•è„š*/
+	GPIO_InitStruct.Pin = LED1_PIN;
 
-    /*ÉèÖÃÒý½ÅÎªÉÏÀ­Ä£Ê½*/
-    GPIO_InitStruct.Pull  = GPIO_PULLUP;
+	/*è®¾ç½®å¼•è„šçš„è¾“å‡ºç±»åž‹ä¸ºæŽ¨æŒ½è¾“å‡º*/
+	GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
 
-    /*ÉèÖÃÒý½ÅËÙÂÊÎª¸ßËÙ */   
-    GPIO_InitStruct.Speed = GPIO_SPEED_HIGH; 
+	/*è®¾ç½®å¼•è„šä¸ºä¸Šæ‹‰æ¨¡å¼*/
+	GPIO_InitStruct.Pull  = GPIO_PULLUP;
 
-    /*µ÷ÓÃ¿âº¯Êý£¬Ê¹ÓÃÉÏÃæÅäÖÃµÄGPIO_InitStructure³õÊ¼»¯GPIO*/
-    HAL_GPIO_Init(LED1_GPIO_PORT, &GPIO_InitStruct);	
+	/*è®¾ç½®å¼•è„šé€ŸçŽ‡ä¸ºé«˜é€Ÿ */
+	GPIO_InitStruct.Speed = GPIO_SPEED_HIGH;
 
-    /*Ñ¡ÔñÒª¿ØÖÆµÄGPIOÒý½Å*/															   
-    GPIO_InitStruct.Pin = LED2_PIN;	
-    HAL_GPIO_Init(LED2_GPIO_PORT, &GPIO_InitStruct);	
+	/*è°ƒç”¨åº“å‡½æ•°ï¼Œä½¿ç”¨ä¸Šé¢é…ç½®çš„GPIO_InitStructureåˆå§‹åŒ–GPIO*/
+	HAL_GPIO_Init(LED1_GPIO_PORT, &GPIO_InitStruct);
 
-    /*Ñ¡ÔñÒª¿ØÖÆµÄGPIOÒý½Å*/															   
-    GPIO_InitStruct.Pin = LED3_PIN;	
-    HAL_GPIO_Init(LED3_GPIO_PORT, &GPIO_InitStruct);	
+	/*é€‰æ‹©è¦æŽ§åˆ¶çš„GPIOå¼•è„š*/
+	GPIO_InitStruct.Pin = LED2_PIN;
+	HAL_GPIO_Init(LED2_GPIO_PORT, &GPIO_InitStruct);
 
-    /*Ñ¡ÔñÒª¿ØÖÆµÄGPIOÒý½Å*/															   
-    GPIO_InitStruct.Pin = LED4_PIN;	
-    HAL_GPIO_Init(LED4_GPIO_PORT, &GPIO_InitStruct);	
+	/*é€‰æ‹©è¦æŽ§åˆ¶çš„GPIOå¼•è„š*/
+	GPIO_InitStruct.Pin = LED3_PIN;
+	HAL_GPIO_Init(LED3_GPIO_PORT, &GPIO_InitStruct);
 
-    /*¹Ø±ÕRGBµÆ*/
-    LED_RGBOFF;
+	/*é€‰æ‹©è¦æŽ§åˆ¶çš„GPIOå¼•è„š*/
+	GPIO_InitStruct.Pin = LED4_PIN;
+	HAL_GPIO_Init(LED4_GPIO_PORT, &GPIO_InitStruct);
 
-    /*Ö¸Ê¾µÆÄ¬ÈÏ¿ªÆô*/
-    LED4(ON);
-		
+	/*å…³é—­RGBç¯*/
+	LED_RGBOFF;
+
+	/*æŒ‡ç¤ºç¯é»˜è®¤å¼€å¯*/
+	LED4(ON);
+
 }
 /*********************************************END OF FILE**********************/

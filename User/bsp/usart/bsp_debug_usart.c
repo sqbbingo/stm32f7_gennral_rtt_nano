@@ -1,109 +1,109 @@
 /**
-  ******************************************************************************
-  * @file    bsp_debug_usart.c
-  * @author  fire
-  * @version V1.0
-  * @date    2016-xx-xx
-  * @brief   Ê¹ÓÃ´®¿Ú1£¬ÖØ¶¨Ïòc¿âprintfº¯Êıµ½usart¶Ë¿Ú£¬ÖĞ¶Ï½ÓÊÕÄ£Ê½
-  ******************************************************************************
-  * @attention
-  *
-  * ÊµÑéÆ½Ì¨:±ü»ğ  STM32 F746 ¿ª·¢°å  
-  * ÂÛÌ³    :http://www.firebbs.cn
-  * ÌÔ±¦    :http://firestm32.taobao.com
-  *
-  ******************************************************************************
-  */ 
-  
+	******************************************************************************
+	* @file    bsp_debug_usart.c
+	* @author  fire
+	* @version V1.0
+	* @date    2016-xx-xx
+	* @brief   ä½¿ç”¨ä¸²å£1ï¼Œé‡å®šå‘cåº“printfå‡½æ•°åˆ°usartç«¯å£ï¼Œä¸­æ–­æ¥æ”¶æ¨¡å¼
+	******************************************************************************
+	* @attention
+	*
+	* å®éªŒå¹³å°:ç§‰ç«  STM32 F746 å¼€å‘æ¿
+	* è®ºå›    :http://www.firebbs.cn
+	* æ·˜å®    :http://firestm32.taobao.com
+	*
+	******************************************************************************
+	*/
+
 #include "./usart/bsp_debug_usart.h"
 
 UART_HandleTypeDef UartHandle;
-extern uint8_t ucTemp;  
- /**
-  * @brief  DEBUG_USART GPIO ÅäÖÃ,¹¤×÷Ä£Ê½ÅäÖÃ¡£115200 8-N-1
-  * @param  ÎŞ
-  * @retval ÎŞ
-  */  
+extern uint8_t ucTemp;
+/**
+* @brief  DEBUG_USART GPIO é…ç½®,å·¥ä½œæ¨¡å¼é…ç½®ã€‚115200 8-N-1
+* @param  æ— 
+* @retval æ— 
+*/
 void DEBUG_USART_Config(void)
 {
-    GPIO_InitTypeDef GPIO_InitStruct;
-    RCC_PeriphCLKInitTypeDef RCC_PeriphClkInit;       
+	GPIO_InitTypeDef GPIO_InitStruct;
+	RCC_PeriphCLKInitTypeDef RCC_PeriphClkInit;
 
-    
-    /* ÅäÖÃ´®¿Ú1Ê±ÖÓÔ´*/
-    RCC_PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_UARTx;
-    RCC_PeriphClkInit.Usart1ClockSelection = RCC_UARTxCLKSOURCE_SYSCLK;
-    HAL_RCCEx_PeriphCLKConfig(&RCC_PeriphClkInit);
-    /* Ê¹ÄÜ UART Ê±ÖÓ */
-    DEBUG_USART_CLK_ENABLE();
-	
+
+	/* é…ç½®ä¸²å£1æ—¶é’Ÿæº*/
+	RCC_PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_UARTx;
+	RCC_PeriphClkInit.Usart1ClockSelection = RCC_UARTxCLKSOURCE_SYSCLK;
+	HAL_RCCEx_PeriphCLKConfig(&RCC_PeriphClkInit);
+	/* ä½¿èƒ½ UART æ—¶é’Ÿ */
+	DEBUG_USART_CLK_ENABLE();
+
 	DEBUG_USART_RX_GPIO_CLK_ENABLE();
-    DEBUG_USART_TX_GPIO_CLK_ENABLE();
+	DEBUG_USART_TX_GPIO_CLK_ENABLE();
 
-    /**USART1 GPIO Configuration    
-    PA9     ------> USART1_TX
-    PA10    ------> USART1_RX 
-    */
-    /* ÅäÖÃTxÒı½ÅÎª¸´ÓÃ¹¦ÄÜ  */
-    GPIO_InitStruct.Pin = DEBUG_USART_TX_PIN;
-    GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
-    GPIO_InitStruct.Pull = GPIO_PULLUP;
-    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
-    GPIO_InitStruct.Alternate = DEBUG_USART_TX_AF;
-    HAL_GPIO_Init(DEBUG_USART_TX_GPIO_PORT, &GPIO_InitStruct);
-    
-    /* ÅäÖÃRxÒı½ÅÎª¸´ÓÃ¹¦ÄÜ */
-    GPIO_InitStruct.Pin = DEBUG_USART_RX_PIN;
-    GPIO_InitStruct.Alternate = DEBUG_USART_RX_AF;
-    HAL_GPIO_Init(DEBUG_USART_RX_GPIO_PORT, &GPIO_InitStruct); 
-    
-    /* ÅäÖÃ´®DEBUG_USART Ä£Ê½ */
-    UartHandle.Instance = DEBUG_USART;
-    UartHandle.Init.BaudRate = 115200;
-    UartHandle.Init.WordLength = UART_WORDLENGTH_8B;
-    UartHandle.Init.StopBits = UART_STOPBITS_1;
-    UartHandle.Init.Parity = UART_PARITY_NONE;
-    UartHandle.Init.Mode = UART_MODE_TX_RX;
-    UartHandle.Init.HwFlowCtl = UART_HWCONTROL_NONE;
-    UartHandle.Init.OverSampling = UART_OVERSAMPLING_16;
-    UartHandle.Init.OneBitSampling = UART_ONEBIT_SAMPLING_DISABLED;
-    UartHandle.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_NO_INIT;
-    HAL_UART_Init(&UartHandle);
+	/**USART1 GPIO Configuration
+	PA9     ------> USART1_TX
+	PA10    ------> USART1_RX
+	*/
+	/* é…ç½®Txå¼•è„šä¸ºå¤ç”¨åŠŸèƒ½  */
+	GPIO_InitStruct.Pin = DEBUG_USART_TX_PIN;
+	GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
+	GPIO_InitStruct.Pull = GPIO_PULLUP;
+	GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
+	GPIO_InitStruct.Alternate = DEBUG_USART_TX_AF;
+	HAL_GPIO_Init(DEBUG_USART_TX_GPIO_PORT, &GPIO_InitStruct);
 
-    /*´®¿Ú1ÖĞ¶Ï³õÊ¼»¯ */
+	/* é…ç½®Rxå¼•è„šä¸ºå¤ç”¨åŠŸèƒ½ */
+	GPIO_InitStruct.Pin = DEBUG_USART_RX_PIN;
+	GPIO_InitStruct.Alternate = DEBUG_USART_RX_AF;
+	HAL_GPIO_Init(DEBUG_USART_RX_GPIO_PORT, &GPIO_InitStruct);
+
+	/* é…ç½®ä¸²DEBUG_USART æ¨¡å¼ */
+	UartHandle.Instance = DEBUG_USART;
+	UartHandle.Init.BaudRate = 115200;
+	UartHandle.Init.WordLength = UART_WORDLENGTH_8B;
+	UartHandle.Init.StopBits = UART_STOPBITS_1;
+	UartHandle.Init.Parity = UART_PARITY_NONE;
+	UartHandle.Init.Mode = UART_MODE_TX_RX;
+	UartHandle.Init.HwFlowCtl = UART_HWCONTROL_NONE;
+	UartHandle.Init.OverSampling = UART_OVERSAMPLING_16;
+	UartHandle.Init.OneBitSampling = UART_ONEBIT_SAMPLING_DISABLED;
+	UartHandle.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_NO_INIT;
+	HAL_UART_Init(&UartHandle);
+
+	/*ä¸²å£1ä¸­æ–­åˆå§‹åŒ– */
 //    HAL_NVIC_SetPriority(DEBUG_USART_IRQ, 0, 0);
 //    HAL_NVIC_EnableIRQ(DEBUG_USART_IRQ);
-    /*ÅäÖÃ´®¿Ú½ÓÊÕÖĞ¶Ï */
-//    __HAL_UART_ENABLE_IT(&UartHandle,UART_IT_RXNE);  
+	/*é…ç½®ä¸²å£æ¥æ”¶ä¸­æ–­ */
+//    __HAL_UART_ENABLE_IT(&UartHandle,UART_IT_RXNE);
 }
 
 
-/*****************  ·¢ËÍ×Ö·û´® **********************/
+/*****************  å‘é€å­—ç¬¦ä¸² **********************/
 void Usart_SendString(uint8_t *str)
 {
-	unsigned int k=0;
-  do 
-  {
-      HAL_UART_Transmit(&UartHandle,(uint8_t *)(str + k) ,1,1000);
-      k++;
-  } while(*(str + k)!='\0');
-  
+	unsigned int k = 0;
+	do
+	{
+		HAL_UART_Transmit(&UartHandle, (uint8_t *)(str + k) , 1, 1000);
+		k++;
+	} while (*(str + k) != '\0');
+
 }
-///ÖØ¶¨Ïòc¿âº¯Êıprintfµ½´®¿ÚDEBUG_USART£¬ÖØ¶¨Ïòºó¿ÉÊ¹ÓÃprintfº¯Êı
+///é‡å®šå‘cåº“å‡½æ•°printfåˆ°ä¸²å£DEBUG_USARTï¼Œé‡å®šå‘åå¯ä½¿ç”¨printfå‡½æ•°
 int fputc(int ch, FILE *f)
 {
-	/* ·¢ËÍÒ»¸ö×Ö½ÚÊı¾İµ½´®¿ÚDEBUG_USART */
-	HAL_UART_Transmit(&UartHandle, (uint8_t *)&ch, 1, 1000);	
-	
+	/* å‘é€ä¸€ä¸ªå­—èŠ‚æ•°æ®åˆ°ä¸²å£DEBUG_USART */
+	HAL_UART_Transmit(&UartHandle, (uint8_t *)&ch, 1, 1000);
+
 	return (ch);
 }
 
-///ÖØ¶¨Ïòc¿âº¯Êıscanfµ½´®¿ÚDEBUG_USART£¬ÖØĞ´Ïòºó¿ÉÊ¹ÓÃscanf¡¢getcharµÈº¯Êı
+///é‡å®šå‘cåº“å‡½æ•°scanfåˆ°ä¸²å£DEBUG_USARTï¼Œé‡å†™å‘åå¯ä½¿ç”¨scanfã€getcharç­‰å‡½æ•°
 int fgetc(FILE *f)
 {
-		
+
 	int ch;
-	HAL_UART_Receive(&UartHandle, (uint8_t *)&ch, 1, 1000);	
+	HAL_UART_Receive(&UartHandle, (uint8_t *)&ch, 1, 1000);
 	return (ch);
 }
 /*********************************************END OF FILE**********************/

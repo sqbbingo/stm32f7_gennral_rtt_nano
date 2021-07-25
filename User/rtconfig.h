@@ -60,7 +60,7 @@
 // <i> Enables user timers
 #define RT_USING_TIMER_SOFT         0
 #if RT_USING_TIMER_SOFT == 0
-    #undef RT_USING_TIMER_SOFT
+#undef RT_USING_TIMER_SOFT
 #endif
 // <o>The priority level of timer thread <0-31>
 //  <i>Default: 4
@@ -122,7 +122,7 @@
 
 // <h>FinSH Configuration
 // <c1>include finsh config
-//  <i>Select this choice if you using FinSH 
+//  <i>Select this choice if you using FinSH
 #include "finsh_config.h"
 // </c>
 // </h>
