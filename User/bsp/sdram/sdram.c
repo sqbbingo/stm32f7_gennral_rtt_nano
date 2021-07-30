@@ -1,6 +1,7 @@
 #include "rtthread.h"
 #include "sdram.h"
 #include "core_delay.h"
+#include "delay.h"
 
 SDRAM_HandleTypeDef SDRAM_Handler;   //SDRAM句柄
 
@@ -40,11 +41,8 @@ void SDRAM_Initialization_Sequence(SDRAM_HandleTypeDef *hsdram)
 	rt_uint32_t temp = 0;
 	//SDRAM控制器初始化完成以后还需要按照如下顺序初始化SDRAM
 	SDRAM_Send_Cmd(0, FMC_SDRAM_CMD_CLK_ENABLE, 1, 0); //时钟配置使能
-//	HAL_delay_us(400);                                  //至少延时200us
-	for(int i =0;i<1000;i++)
-	{
-		for(int j=0;j<1000;j++);
-	}
+	delay_us(400);                                  //至少延时200us
+
 	SDRAM_Send_Cmd(0, FMC_SDRAM_CMD_PALL, 1, 0);    //对所有存储区预充电
 	SDRAM_Send_Cmd(0, FMC_SDRAM_CMD_AUTOREFRESH_MODE, 8, 0); //设置自刷新次数
 	//配置模式寄存器,SDRAM的bit0~bit2为指定突发访问的长度，

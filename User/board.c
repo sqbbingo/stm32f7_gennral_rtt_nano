@@ -127,6 +127,7 @@ void rt_hw_board_init(void)
 
 	/* 硬件BSP初始化统统放在这里，比如LED，串口，LCD等 */
 	HAL_Init();
+	delay_init(216);                //延时函数初始化
 	SDRAM_Init();
 	/* LED 端口初始化 */
 	LED_GPIO_Config();

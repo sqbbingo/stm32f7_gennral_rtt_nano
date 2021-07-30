@@ -762,6 +762,11 @@
               <FileType>1</FileType>
               <FilePath>..\..\User\bsp\sdram\sdram.c</FilePath>
             </File>
+            <File>
+              <FileName>delay.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\User\bsp\delay\delay.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
