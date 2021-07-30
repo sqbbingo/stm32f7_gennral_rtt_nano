@@ -743,11 +743,6 @@
               <FilePath>..\..\User\board.c</FilePath>
             </File>
             <File>
-              <FileName>core_delay.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\User\bsp\delay\core_delay.c</FilePath>
-            </File>
-            <File>
               <FileName>bsp_debug_usart.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\User\bsp\usart\bsp_debug_usart.c</FilePath>

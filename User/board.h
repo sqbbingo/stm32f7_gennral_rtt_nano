@@ -11,7 +11,6 @@
 #include "main.h"
 /* 开发板硬件bsp头文件 */
 #include "./led/bsp_led.h"
-#include "core_delay.h"
 #include "./usart/bsp_debug_usart.h"
 #include "delay.h"
 /*

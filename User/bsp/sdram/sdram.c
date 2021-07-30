@@ -1,6 +1,5 @@
 #include "rtthread.h"
 #include "sdram.h"
-#include "core_delay.h"
 #include "delay.h"
 
 SDRAM_HandleTypeDef SDRAM_Handler;   //SDRAM句柄
