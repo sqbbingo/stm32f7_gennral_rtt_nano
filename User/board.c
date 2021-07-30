@@ -18,8 +18,9 @@
  * Please modify RT_HEAP_SIZE if you enable RT_USING_HEAP
  * the RT_HEAP_SIZE max value = (sram size - ZI size), 1024 means 1024 bytes
  */
-#define RT_HEAP_SIZE (32*1024*1024)
+//#define RT_HEAP_SIZE (10*1024)
 //static rt_uint8_t rt_heap[RT_HEAP_SIZE];
+#define RT_HEAP_SIZE (32*1024*1024)
 static rt_uint8_t rt_heap[RT_HEAP_SIZE] __attribute__((at(0XC0000000)));
 
 RT_WEAK void *rt_heap_begin_get(void)
@@ -120,15 +121,16 @@ static void SystemClock_Config(void)
 void rt_hw_board_init(void)
 {
 	SystemClock_Config();
+
 	/* 初始化SysTick */
 	HAL_SYSTICK_Config( HAL_RCC_GetSysClockFreq() / RT_TICK_PER_SECOND );
 
 	/* 硬件BSP初始化统统放在这里，比如LED，串口，LCD等 */
-
+	HAL_Init();
+	SDRAM_Init();
 	/* LED 端口初始化 */
 	LED_GPIO_Config();
 
-	SDRAM_Init();
 	/*
 	 * TODO 1: OS Tick Configuration
 	 * Enable the hardware timer and call the rt_os_tick_callback function
