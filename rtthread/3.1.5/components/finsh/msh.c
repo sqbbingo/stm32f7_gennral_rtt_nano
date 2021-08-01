@@ -55,7 +55,7 @@ static int msh_exit(int argc, char **argv)
     __msh_state = RT_FALSE;
     return 0;
 }
-FINSH_FUNCTION_EXPORT_ALIAS(msh_exit, __cmd_exit, return to RT-Thread shell mode.);
+FINSH_FUNCTION_EXPORT_ALIAS(msh_exit, __cmd_exit, return to RT - Thread shell mode.);
 
 static int msh_enter(void)
 {
@@ -68,7 +68,7 @@ FINSH_FUNCTION_EXPORT_ALIAS(msh_enter, msh, use module shell);
 
 int msh_help(int argc, char **argv)
 {
-    rt_kprintf("RT-Thread shell commands:\n");
+    rt_kprintf("RT-Thread shell commands:\r\n");
     {
         struct finsh_syscall *index;
 
@@ -78,17 +78,17 @@ int msh_help(int argc, char **argv)
         {
             if (strncmp(index->name, "__cmd_", 6) != 0) continue;
 #if defined(FINSH_USING_DESCRIPTION) && defined(FINSH_USING_SYMTAB)
-            rt_kprintf("%-16s - %s\n", &index->name[6], index->desc);
+            rt_kprintf("%-16s - %s\r\n", &index->name[6], index->desc);
 #else
             rt_kprintf("%s ", &index->name[6]);
 #endif
         }
     }
-    rt_kprintf("\n");
+    rt_kprintf("\r\n");
 
     return 0;
 }
-FINSH_FUNCTION_EXPORT_ALIAS(msh_help, __cmd_help, RT-Thread shell help.);
+FINSH_FUNCTION_EXPORT_ALIAS(msh_help, __cmd_help, RT - Thread shell help.);
 
 int cmd_ps(int argc, char **argv)
 {
@@ -140,14 +140,14 @@ static int msh_split(char *cmd, rt_size_t length, char *argv[FINSH_ARG_MAX])
             ptr ++; position ++;
         }
 
-        if(argc >= FINSH_ARG_MAX)
+        if (argc >= FINSH_ARG_MAX)
         {
-            rt_kprintf("Too many args ! We only Use:\n");
-            for(i = 0; i < argc; i++)
+            rt_kprintf("Too many args ! We only Use:\r\n");
+            for (i = 0; i < argc; i++)
             {
                 rt_kprintf("%s ", argv[i]);
             }
-            rt_kprintf("\n");
+            rt_kprintf("\r\n");
             break;
         }
 
@@ -425,7 +425,7 @@ int msh_exec(char *cmd, rt_size_t length)
         }
         *tcmd = '\0';
     }
-    rt_kprintf("%s: command not found.\n", cmd);
+    rt_kprintf("%s: command not found.\r\n", cmd);
     return -1;
 }
 
@@ -505,7 +505,7 @@ void msh_auto_complete_path(char *path)
             dirent = readdir(dir);
             if (dirent == RT_NULL) break;
 
-            rt_kprintf("%s\n", dirent->d_name);
+            rt_kprintf("%s\r\n", dirent->d_name);
         }
     }
     else
@@ -550,7 +550,7 @@ void msh_auto_complete_path(char *path)
                     if (dirent == RT_NULL) break;
 
                     if (strncmp(index, dirent->d_name, rt_strlen(index)) == 0)
-                        rt_kprintf("%s\n", dirent->d_name);
+                        rt_kprintf("%s\r\n", dirent->d_name);
                 }
             }
 
@@ -630,7 +630,7 @@ void msh_auto_complete(char *prefix)
                 if (length < min_length)
                     min_length = length;
 
-                rt_kprintf("%s\n", cmd_name);
+                rt_kprintf("%s\r\n", cmd_name);
             }
         }
     }

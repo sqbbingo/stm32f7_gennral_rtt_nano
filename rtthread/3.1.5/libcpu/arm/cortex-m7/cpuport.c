@@ -434,6 +434,7 @@ void rt_hw_cpu_shutdown(void)
 
     RT_ASSERT(0);
 }
+FINSH_FUNCTION_EXPORT_ALIAS(rt_hw_cpu_shutdown	, __cmd_poweroff, shutdown);
 
 /**
  * reset CPU
@@ -442,6 +443,9 @@ RT_WEAK void rt_hw_cpu_reset(void)
 {
     SCB_AIRCR = SCB_RESET_VALUE;
 }
+FINSH_FUNCTION_EXPORT_ALIAS(rt_hw_cpu_reset, __cmd_reboot, reboot);
+
+
 
 #ifdef RT_USING_CPU_FFS
 /**

@@ -519,11 +519,11 @@ char *strdup(const char *s) __attribute__((alias("rt_strdup")));
  */
 void rt_show_version(void)
 {
-    rt_kprintf("\n \\ | /\n");
-    rt_kprintf("- RT -     Thread Operating System\n");
-    rt_kprintf(" / | \\     %d.%d.%d build %s\n",
+    rt_kprintf("\r\n \\ | /\r\n");
+    rt_kprintf("- RT -     Thread Operating System\r\n");
+    rt_kprintf(" / | \\     %d.%d.%d build %s\r\n",
                RT_VERSION, RT_SUBVERSION, RT_REVISION, __DATE__);
-    rt_kprintf(" 2006 - 2020 Copyright by rt-thread team\n");
+    rt_kprintf(" 2006 - 2020 Copyright by rt-thread team\r\n");
 }
 
 /* private function */
@@ -537,13 +537,13 @@ rt_inline int divide(long long *n, int base)
     /* optimized for processor which does not support divide instructions. */
     if (base == 10)
     {
-        res = (int)(((unsigned long long)*n) % 10U);
-        *n = (long long)(((unsigned long long)*n) / 10U);
+        res = (int)(((unsigned long long) * n) % 10U);
+        *n = (long long)(((unsigned long long) * n) / 10U);
     }
     else
     {
-        res = (int)(((unsigned long long)*n) % 16U);
-        *n = (long long)(((unsigned long long)*n) / 16U);
+        res = (int)(((unsigned long long) * n) % 16U);
+        *n = (long long)(((unsigned long long) * n) / 16U);
     }
 
     return res;
@@ -556,13 +556,13 @@ rt_inline int divide(long *n, int base)
     /* optimized for processor which does not support divide instructions. */
     if (base == 10)
     {
-        res = (int)(((unsigned long)*n) % 10U);
-        *n = (long)(((unsigned long)*n) / 10U);
+        res = (int)(((unsigned long) * n) % 10U);
+        *n = (long)(((unsigned long) * n) / 10U);
     }
     else
     {
-        res = (int)(((unsigned long)*n) % 16U);
-        *n = (long)(((unsigned long)*n) / 16U);
+        res = (int)(((unsigned long) * n) % 16U);
+        *n = (long)(((unsigned long) * n) / 16U);
     }
 
     return res;
@@ -1336,7 +1336,7 @@ void rt_assert_handler(const char *ex_string, const char *func, rt_size_t line)
 
     if (rt_assert_hook == RT_NULL)
     {
-        rt_kprintf("(%s) assertion failed at function:%s, line number:%d \n", ex_string, func, line);
+        rt_kprintf("(%s) assertion failed at function:%s, line number:%d \r\n", ex_string, func, line);
         while (dummy == 0);
     }
     else

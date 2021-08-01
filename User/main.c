@@ -107,6 +107,8 @@ static void lcd_thread_entry(void* parameter)
     uint8_t x=0;
   	uint8_t lcd_id[12];
 
+	rt_thread_mdelay(5000);
+
 	POINT_COLOR=RED; 
 	sprintf((char*)lcd_id,"LCD ID:%04X",lcddev.id);//将LCD ID打印到lcd_id数组
     while(1)

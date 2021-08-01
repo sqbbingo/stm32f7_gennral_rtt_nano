@@ -42,7 +42,7 @@
 
 long hello(void)
 {
-    rt_kprintf("Hello RT-Thread!\n");
+    rt_kprintf("Hello RT-Thread!\r\n");
 
     return 0;
 }
@@ -55,8 +55,8 @@ long version(void)
 
     return 0;
 }
-FINSH_FUNCTION_EXPORT(version, show RT-Thread version information);
-MSH_CMD_EXPORT(version, show RT-Thread version information);
+FINSH_FUNCTION_EXPORT(version, show RT - Thread version information);
+MSH_CMD_EXPORT(version, show RT - Thread version information);
 
 rt_inline void object_split(int len)
 {
@@ -161,16 +161,16 @@ long list_thread(void)
     const char *item_title = "thread";
     int maxlen;
 
-    list_find_init(&find_arg, RT_Object_Class_Thread, obj_list, sizeof(obj_list)/sizeof(obj_list[0]));
+    list_find_init(&find_arg, RT_Object_Class_Thread, obj_list, sizeof(obj_list) / sizeof(obj_list[0]));
 
     maxlen = RT_NAME_MAX;
 
 #ifdef RT_USING_SMP
-    rt_kprintf("%-*.s cpu pri  status      sp     stack size max used left tick  error\n", maxlen, item_title); object_split(maxlen);
-    rt_kprintf(     " --- ---  ------- ---------- ----------  ------  ---------- ---\n");
+    rt_kprintf("%-*.s cpu pri  status      sp     stack size max used left tick  error\r\n", maxlen, item_title); object_split(maxlen);
+    rt_kprintf(     " --- ---  ------- ---------- ----------  ------  ---------- ---\r\n");
 #else
-    rt_kprintf("%-*.s pri  status      sp     stack size max used left tick  error\n", maxlen, item_title); object_split(maxlen);
-    rt_kprintf(     " ---  ------- ---------- ----------  ------  ---------- ---\n");
+    rt_kprintf("%-*.s pri  status      sp     stack size max used left tick  error\r\n", maxlen, item_title); object_split(maxlen);
+    rt_kprintf(     " ---  ------- ---------- ----------  ------  ---------- ---\r\n");
 #endif /*RT_USING_SMP*/
 
     do
@@ -220,23 +220,23 @@ long list_thread(void)
                     ptr = (rt_uint8_t *)thread->stack_addr + thread->stack_size - 1;
                     while (*ptr == '#')ptr --;
 
-                    rt_kprintf(" 0x%08x 0x%08x    %02d%%   0x%08x %03d\n",
-                            ((rt_ubase_t)thread->sp - (rt_ubase_t)thread->stack_addr),
-                            thread->stack_size,
-                            ((rt_ubase_t)ptr - (rt_ubase_t)thread->stack_addr) * 100 / thread->stack_size,
-                            thread->remaining_tick,
-                            thread->error);
+                    rt_kprintf(" 0x%08x 0x%08x    %02d%%   0x%08x %03d\r\n",
+                               ((rt_ubase_t)thread->sp - (rt_ubase_t)thread->stack_addr),
+                               thread->stack_size,
+                               ((rt_ubase_t)ptr - (rt_ubase_t)thread->stack_addr) * 100 / thread->stack_size,
+                               thread->remaining_tick,
+                               thread->error);
 #else
                     ptr = (rt_uint8_t *)thread->stack_addr;
                     while (*ptr == '#')ptr ++;
 
-                    rt_kprintf(" 0x%08x 0x%08x    %02d%%   0x%08x %03d\n",
-                            thread->stack_size + ((rt_ubase_t)thread->stack_addr - (rt_ubase_t)thread->sp),
-                            thread->stack_size,
-                            (thread->stack_size - ((rt_ubase_t) ptr - (rt_ubase_t) thread->stack_addr)) * 100
-                            / thread->stack_size,
-                            thread->remaining_tick,
-                            thread->error);
+                    rt_kprintf(" 0x%08x 0x%08x    %02d%%   0x%08x %03d\r\n",
+                               thread->stack_size + ((rt_ubase_t)thread->stack_addr - (rt_ubase_t)thread->sp),
+                               thread->stack_size,
+                               (thread->stack_size - ((rt_ubase_t) ptr - (rt_ubase_t) thread->stack_addr)) * 100
+                               / thread->stack_size,
+                               thread->remaining_tick,
+                               thread->error);
 #endif
                 }
             }
@@ -248,6 +248,60 @@ long list_thread(void)
 }
 FINSH_FUNCTION_EXPORT(list_thread, list thread);
 MSH_CMD_EXPORT(list_thread, list thread);
+
+static void kill_thread(int argc, char**argv)
+{
+	rt_ubase_t level;
+	list_get_next_t find_arg;
+	rt_list_t *obj_list[LIST_FIND_OBJ_NR];
+	rt_list_t *next = (rt_list_t*)RT_NULL;
+
+    if (argc < 2)
+    {
+        rt_kprintf("please which thread name need to kill %d \r\n",argc);
+        return;
+    }
+
+	list_find_init(&find_arg, RT_Object_Class_Thread, obj_list, sizeof(obj_list) / sizeof(obj_list[0]));
+
+	do
+	{
+		next = list_get_next(next, &find_arg);
+		{
+			int i;
+			for (i = 0; i < find_arg.nr_out; i++)
+			{
+				struct rt_object *obj;
+				struct rt_thread thread_info, *thread;
+
+				obj = rt_list_entry(obj_list[i], struct rt_object, list);
+				level = rt_hw_interrupt_disable();
+
+				if ((obj->type & ~RT_Object_Class_Static) != find_arg.type)
+				{
+					rt_hw_interrupt_enable(level);
+					continue;
+				}
+				/* copy info */
+				memcpy(&thread_info, obj, sizeof thread_info);
+				rt_hw_interrupt_enable(level);
+
+				thread = (struct rt_thread*)obj;
+				{
+					if(strcmp(thread->name,argv[1]) == 0)
+					{
+						rt_thread_delete(thread);
+						return;
+					}
+				}
+			}
+		}
+	}
+	while (next != (rt_list_t*)RT_NULL);
+
+	rt_kprintf("%s thread not find \r\n",argv[1]);
+}
+MSH_CMD_EXPORT(kill_thread, kill thread by name);
 
 static void show_wait_queue(struct rt_list_node *list)
 {
@@ -275,12 +329,12 @@ long list_sem(void)
     int maxlen;
     const char *item_title = "semaphore";
 
-    list_find_init(&find_arg, RT_Object_Class_Semaphore, obj_list, sizeof(obj_list)/sizeof(obj_list[0]));
+    list_find_init(&find_arg, RT_Object_Class_Semaphore, obj_list, sizeof(obj_list) / sizeof(obj_list[0]));
 
     maxlen = RT_NAME_MAX;
 
-    rt_kprintf("%-*.s v   suspend thread\n", maxlen, item_title); object_split(maxlen);
-    rt_kprintf(     " --- --------------\n");
+    rt_kprintf("%-*.s v   suspend thread\r\n", maxlen, item_title); object_split(maxlen);
+    rt_kprintf(     " --- --------------\r\n");
 
     do
     {
@@ -305,20 +359,20 @@ long list_sem(void)
                 if (!rt_list_isempty(&sem->parent.suspend_thread))
                 {
                     rt_kprintf("%-*.*s %03d %d:",
-                            maxlen, RT_NAME_MAX,
-                            sem->parent.parent.name,
-                            sem->value,
-                            rt_list_len(&sem->parent.suspend_thread));
+                               maxlen, RT_NAME_MAX,
+                               sem->parent.parent.name,
+                               sem->value,
+                               rt_list_len(&sem->parent.suspend_thread));
                     show_wait_queue(&(sem->parent.suspend_thread));
-                    rt_kprintf("\n");
+                    rt_kprintf("\r\n");
                 }
                 else
                 {
-                    rt_kprintf("%-*.*s %03d %d\n",
-                            maxlen, RT_NAME_MAX,
-                            sem->parent.parent.name,
-                            sem->value,
-                            rt_list_len(&sem->parent.suspend_thread));
+                    rt_kprintf("%-*.*s %03d %d\r\n",
+                               maxlen, RT_NAME_MAX,
+                               sem->parent.parent.name,
+                               sem->value,
+                               rt_list_len(&sem->parent.suspend_thread));
                 }
             }
         }
@@ -342,12 +396,12 @@ long list_event(void)
     int maxlen;
     const char *item_title = "event";
 
-    list_find_init(&find_arg, RT_Object_Class_Event, obj_list, sizeof(obj_list)/sizeof(obj_list[0]));
+    list_find_init(&find_arg, RT_Object_Class_Event, obj_list, sizeof(obj_list) / sizeof(obj_list[0]));
 
     maxlen = RT_NAME_MAX;
 
-    rt_kprintf("%-*.s      set    suspend thread\n", maxlen, item_title); object_split(maxlen);
-    rt_kprintf(     "  ---------- --------------\n");
+    rt_kprintf("%-*.s      set    suspend thread\r\n", maxlen, item_title); object_split(maxlen);
+    rt_kprintf(     "  ---------- --------------\r\n");
 
     do
     {
@@ -373,17 +427,17 @@ long list_event(void)
                 if (!rt_list_isempty(&e->parent.suspend_thread))
                 {
                     rt_kprintf("%-*.*s  0x%08x %03d:",
-                            maxlen, RT_NAME_MAX,
-                            e->parent.parent.name,
-                            e->set,
-                            rt_list_len(&e->parent.suspend_thread));
+                               maxlen, RT_NAME_MAX,
+                               e->parent.parent.name,
+                               e->set,
+                               rt_list_len(&e->parent.suspend_thread));
                     show_wait_queue(&(e->parent.suspend_thread));
-                    rt_kprintf("\n");
+                    rt_kprintf("\r\n");
                 }
                 else
                 {
-                    rt_kprintf("%-*.*s  0x%08x 0\n",
-                            maxlen, RT_NAME_MAX, e->parent.parent.name, e->set);
+                    rt_kprintf("%-*.*s  0x%08x 0\r\n",
+                               maxlen, RT_NAME_MAX, e->parent.parent.name, e->set);
                 }
             }
         }
@@ -407,12 +461,12 @@ long list_mutex(void)
     int maxlen;
     const char *item_title = "mutex";
 
-    list_find_init(&find_arg, RT_Object_Class_Mutex, obj_list, sizeof(obj_list)/sizeof(obj_list[0]));
+    list_find_init(&find_arg, RT_Object_Class_Mutex, obj_list, sizeof(obj_list) / sizeof(obj_list[0]));
 
     maxlen = RT_NAME_MAX;
 
-    rt_kprintf("%-*.s   owner  hold suspend thread\n", maxlen, item_title); object_split(maxlen);
-    rt_kprintf(     " -------- ---- --------------\n");
+    rt_kprintf("%-*.s   owner  hold suspend thread\r\n", maxlen, item_title); object_split(maxlen);
+    rt_kprintf(     " -------- ---- --------------\r\n");
 
     do
     {
@@ -435,13 +489,13 @@ long list_mutex(void)
                 rt_hw_interrupt_enable(level);
 
                 m = (struct rt_mutex *)obj;
-                rt_kprintf("%-*.*s %-8.*s %04d %d\n",
-                        maxlen, RT_NAME_MAX,
-                        m->parent.parent.name,
-                        RT_NAME_MAX,
-                        m->owner->name,
-                        m->hold,
-                        rt_list_len(&m->parent.suspend_thread));
+                rt_kprintf("%-*.*s %-8.*s %04d %d\r\n",
+                           maxlen, RT_NAME_MAX,
+                           m->parent.parent.name,
+                           RT_NAME_MAX,
+                           m->owner->name,
+                           m->hold,
+                           rt_list_len(&m->parent.suspend_thread));
 
             }
         }
@@ -465,12 +519,12 @@ long list_mailbox(void)
     int maxlen;
     const char *item_title = "mailbox";
 
-    list_find_init(&find_arg, RT_Object_Class_MailBox, obj_list, sizeof(obj_list)/sizeof(obj_list[0]));
+    list_find_init(&find_arg, RT_Object_Class_MailBox, obj_list, sizeof(obj_list) / sizeof(obj_list[0]));
 
     maxlen = RT_NAME_MAX;
 
-    rt_kprintf("%-*.s entry size suspend thread\n", maxlen, item_title); object_split(maxlen);
-    rt_kprintf(     " ----  ---- --------------\n");
+    rt_kprintf("%-*.s entry size suspend thread\r\n", maxlen, item_title); object_split(maxlen);
+    rt_kprintf(     " ----  ---- --------------\r\n");
 
     do
     {
@@ -496,22 +550,22 @@ long list_mailbox(void)
                 if (!rt_list_isempty(&m->parent.suspend_thread))
                 {
                     rt_kprintf("%-*.*s %04d  %04d %d:",
-                            maxlen, RT_NAME_MAX,
-                            m->parent.parent.name,
-                            m->entry,
-                            m->size,
-                            rt_list_len(&m->parent.suspend_thread));
+                               maxlen, RT_NAME_MAX,
+                               m->parent.parent.name,
+                               m->entry,
+                               m->size,
+                               rt_list_len(&m->parent.suspend_thread));
                     show_wait_queue(&(m->parent.suspend_thread));
-                    rt_kprintf("\n");
+                    rt_kprintf("\r\n");
                 }
                 else
                 {
-                    rt_kprintf("%-*.*s %04d  %04d %d\n",
-                            maxlen, RT_NAME_MAX,
-                            m->parent.parent.name,
-                            m->entry,
-                            m->size,
-                            rt_list_len(&m->parent.suspend_thread));
+                    rt_kprintf("%-*.*s %04d  %04d %d\r\n",
+                               maxlen, RT_NAME_MAX,
+                               m->parent.parent.name,
+                               m->entry,
+                               m->size,
+                               rt_list_len(&m->parent.suspend_thread));
                 }
 
             }
@@ -536,12 +590,12 @@ long list_msgqueue(void)
     int maxlen;
     const char *item_title = "msgqueue";
 
-    list_find_init(&find_arg, RT_Object_Class_MessageQueue, obj_list, sizeof(obj_list)/sizeof(obj_list[0]));
+    list_find_init(&find_arg, RT_Object_Class_MessageQueue, obj_list, sizeof(obj_list) / sizeof(obj_list[0]));
 
     maxlen = RT_NAME_MAX;
 
-    rt_kprintf("%-*.s entry suspend thread\n", maxlen, item_title); object_split(maxlen);
-    rt_kprintf(     " ----  --------------\n");
+    rt_kprintf("%-*.s entry suspend thread\r\n", maxlen, item_title); object_split(maxlen);
+    rt_kprintf(     " ----  --------------\r\n");
     do
     {
         next = list_get_next(next, &find_arg);
@@ -566,20 +620,20 @@ long list_msgqueue(void)
                 if (!rt_list_isempty(&m->parent.suspend_thread))
                 {
                     rt_kprintf("%-*.*s %04d  %d:",
-                            maxlen, RT_NAME_MAX,
-                            m->parent.parent.name,
-                            m->entry,
-                            rt_list_len(&m->parent.suspend_thread));
+                               maxlen, RT_NAME_MAX,
+                               m->parent.parent.name,
+                               m->entry,
+                               rt_list_len(&m->parent.suspend_thread));
                     show_wait_queue(&(m->parent.suspend_thread));
-                    rt_kprintf("\n");
+                    rt_kprintf("\r\n");
                 }
                 else
                 {
-                    rt_kprintf("%-*.*s %04d  %d\n",
-                            maxlen, RT_NAME_MAX,
-                            m->parent.parent.name,
-                            m->entry,
-                            rt_list_len(&m->parent.suspend_thread));
+                    rt_kprintf("%-*.*s %04d  %d\r\n",
+                               maxlen, RT_NAME_MAX,
+                               m->parent.parent.name,
+                               m->entry,
+                               rt_list_len(&m->parent.suspend_thread));
                 }
             }
         }
@@ -603,12 +657,12 @@ long list_memheap(void)
     int maxlen;
     const char *item_title = "memheap";
 
-    list_find_init(&find_arg, RT_Object_Class_MemHeap, obj_list, sizeof(obj_list)/sizeof(obj_list[0]));
+    list_find_init(&find_arg, RT_Object_Class_MemHeap, obj_list, sizeof(obj_list) / sizeof(obj_list[0]));
 
     maxlen = RT_NAME_MAX;
 
-    rt_kprintf("%-*.s  pool size  max used size available size\n", maxlen, item_title); object_split(maxlen);
-    rt_kprintf(      " ---------- ------------- --------------\n");
+    rt_kprintf("%-*.s  pool size  max used size available size\r\n", maxlen, item_title); object_split(maxlen);
+    rt_kprintf(      " ---------- ------------- --------------\r\n");
     do
     {
         next = list_get_next(next, &find_arg);
@@ -631,12 +685,12 @@ long list_memheap(void)
 
                 mh = (struct rt_memheap *)obj;
 
-                rt_kprintf("%-*.*s %-010d %-013d %-05d\n",
-                        maxlen, RT_NAME_MAX,
-                        mh->parent.name,
-                        mh->pool_size,
-                        mh->max_used_size,
-                        mh->available_size);
+                rt_kprintf("%-*.*s %-010d %-013d %-05d\r\n",
+                           maxlen, RT_NAME_MAX,
+                           mh->parent.name,
+                           mh->pool_size,
+                           mh->max_used_size,
+                           mh->available_size);
 
             }
         }
@@ -660,12 +714,12 @@ long list_mempool(void)
     int maxlen;
     const char *item_title = "mempool";
 
-    list_find_init(&find_arg, RT_Object_Class_MemPool, obj_list, sizeof(obj_list)/sizeof(obj_list[0]));
+    list_find_init(&find_arg, RT_Object_Class_MemPool, obj_list, sizeof(obj_list) / sizeof(obj_list[0]));
 
     maxlen = RT_NAME_MAX;
 
-    rt_kprintf("%-*.s block total free suspend thread\n", maxlen, item_title); object_split(maxlen);
-    rt_kprintf(     " ----  ----  ---- --------------\n");
+    rt_kprintf("%-*.s block total free suspend thread\r\n", maxlen, item_title); object_split(maxlen);
+    rt_kprintf(     " ----  ----  ---- --------------\r\n");
     do
     {
         next = list_get_next(next, &find_arg);
@@ -699,24 +753,24 @@ long list_mempool(void)
                 if (suspend_thread_count > 0)
                 {
                     rt_kprintf("%-*.*s %04d  %04d  %04d %d:",
-                            maxlen, RT_NAME_MAX,
-                            mp->parent.name,
-                            mp->block_size,
-                            mp->block_total_count,
-                            mp->block_free_count,
-                            suspend_thread_count);
+                               maxlen, RT_NAME_MAX,
+                               mp->parent.name,
+                               mp->block_size,
+                               mp->block_total_count,
+                               mp->block_free_count,
+                               suspend_thread_count);
                     show_wait_queue(&(mp->suspend_thread));
-                    rt_kprintf("\n");
+                    rt_kprintf("\r\n");
                 }
                 else
                 {
-                    rt_kprintf("%-*.*s %04d  %04d  %04d %d\n",
-                            maxlen, RT_NAME_MAX,
-                            mp->parent.name,
-                            mp->block_size,
-                            mp->block_total_count,
-                            mp->block_free_count,
-                            suspend_thread_count);
+                    rt_kprintf("%-*.*s %04d  %04d  %04d %d\r\n",
+                               maxlen, RT_NAME_MAX,
+                               mp->parent.name,
+                               mp->block_size,
+                               mp->block_total_count,
+                               mp->block_free_count,
+                               suspend_thread_count);
                 }
             }
         }
@@ -739,12 +793,12 @@ long list_timer(void)
     int maxlen;
     const char *item_title = "timer";
 
-    list_find_init(&find_arg, RT_Object_Class_Timer, obj_list, sizeof(obj_list)/sizeof(obj_list[0]));
+    list_find_init(&find_arg, RT_Object_Class_Timer, obj_list, sizeof(obj_list) / sizeof(obj_list[0]));
 
     maxlen = RT_NAME_MAX;
 
-    rt_kprintf("%-*.s  periodic   timeout       flag\n", maxlen, item_title); object_split(maxlen);
-    rt_kprintf(     " ---------- ---------- -----------\n");
+    rt_kprintf("%-*.s  periodic   timeout       flag\r\n", maxlen, item_title); object_split(maxlen);
+    rt_kprintf(     " ---------- ---------- -----------\r\n");
     do {
         next = list_get_next(next, &find_arg);
         {
@@ -766,21 +820,21 @@ long list_timer(void)
 
                 timer = (struct rt_timer *)obj;
                 rt_kprintf("%-*.*s 0x%08x 0x%08x ",
-                        maxlen, RT_NAME_MAX,
-                        timer->parent.name,
-                        timer->init_tick,
-                        timer->timeout_tick);
+                           maxlen, RT_NAME_MAX,
+                           timer->parent.name,
+                           timer->init_tick,
+                           timer->timeout_tick);
                 if (timer->parent.flag & RT_TIMER_FLAG_ACTIVATED)
-                    rt_kprintf("activated\n");
+                    rt_kprintf("activated\r\n");
                 else
-                    rt_kprintf("deactivated\n");
+                    rt_kprintf("deactivated\r\n");
 
             }
         }
     }
     while (next != (rt_list_t*)RT_NULL);
 
-    rt_kprintf("current tick:0x%08x\n", rt_tick_get());
+    rt_kprintf("current tick:0x%08x\r\n", rt_tick_get());
 
     return 0;
 }
@@ -824,12 +878,12 @@ long list_device(void)
     int maxlen;
     const char *item_title = "device";
 
-    list_find_init(&find_arg, RT_Object_Class_Device, obj_list, sizeof(obj_list)/sizeof(obj_list[0]));
+    list_find_init(&find_arg, RT_Object_Class_Device, obj_list, sizeof(obj_list) / sizeof(obj_list[0]));
 
     maxlen = RT_NAME_MAX;
 
-    rt_kprintf("%-*.s         type         ref count\n", maxlen, item_title); object_split(maxlen);
-    rt_kprintf(     " -------------------- ----------\n");
+    rt_kprintf("%-*.s         type         ref count\r\n", maxlen, item_title); object_split(maxlen);
+    rt_kprintf(     " -------------------- ----------\r\n");
     do
     {
         next = list_get_next(next, &find_arg);
@@ -851,13 +905,13 @@ long list_device(void)
                 rt_hw_interrupt_enable(level);
 
                 device = (struct rt_device *)obj;
-                rt_kprintf("%-*.*s %-20s %-8d\n",
-                        maxlen, RT_NAME_MAX,
-                        device->parent.name,
-                        (device->type <= RT_Device_Class_Unknown) ?
-                        device_type_str[device->type] :
-                        device_type_str[RT_Device_Class_Unknown],
-                        device->ref_count);
+                rt_kprintf("%-*.*s %-20s %-8d\r\n",
+                           maxlen, RT_NAME_MAX,
+                           device->parent.name,
+                           (device->type <= RT_Device_Class_Unknown) ?
+                           device_type_str[device->type] :
+                           device_type_str[RT_Device_Class_Unknown],
+                           device->ref_count);
 
             }
         }
@@ -877,7 +931,7 @@ long list(void)
     struct finsh_sysvar_item *sysvar_item;
 #endif
 
-    rt_kprintf("--Function List:\n");
+    rt_kprintf("--Function List:\r\n");
     {
         struct finsh_syscall *index;
         for (index = _syscall_table_begin;
@@ -888,9 +942,9 @@ long list(void)
             if (strncmp((char *)index->name, "__", 2) == 0) continue;
 
 #ifdef FINSH_USING_DESCRIPTION
-            rt_kprintf("%-16s -- %s\n", index->name, index->desc);
+            rt_kprintf("%-16s -- %s\r\n", index->name, index->desc);
 #else
-            rt_kprintf("%s\n", index->name);
+            rt_kprintf("%s\r\n", index->name);
 #endif
         }
     }
@@ -900,11 +954,11 @@ long list(void)
     syscall_item = global_syscall_list;
     while (syscall_item != NULL)
     {
-        rt_kprintf("[l] %s\n", syscall_item->syscall.name);
+        rt_kprintf("[l] %s\r\n", syscall_item->syscall.name);
         syscall_item = syscall_item->next;
     }
 
-    rt_kprintf("--Variable List:\n");
+    rt_kprintf("--Variable List:\r\n");
     {
         struct finsh_sysvar *index;
         for (index = _sysvar_table_begin;
@@ -912,9 +966,9 @@ long list(void)
                 FINSH_NEXT_SYSVAR(index))
         {
 #ifdef FINSH_USING_DESCRIPTION
-            rt_kprintf("%-16s -- %s\n", index->name, index->desc);
+            rt_kprintf("%-16s -- %s\r\n", index->name, index->desc);
 #else
-            rt_kprintf("%s\n", index->name);
+            rt_kprintf("%s\r\n", index->name);
 #endif
         }
     }
@@ -922,7 +976,7 @@ long list(void)
     sysvar_item = global_sysvar_list;
     while (sysvar_item != NULL)
     {
-        rt_kprintf("[l] %s\n", sysvar_item->sysvar.name);
+        rt_kprintf("[l] %s\r\n", sysvar_item->sysvar.name);
         sysvar_item = sysvar_item->next;
     }
 #endif
@@ -986,7 +1040,7 @@ void list_prefix(char *prefix)
             {
                 if (func_cnt == 0)
                 {
-                    rt_kprintf("--function:\n");
+                    rt_kprintf("--function:\r\n");
 
                     if (*prefix != 0)
                     {
@@ -1008,9 +1062,9 @@ void list_prefix(char *prefix)
                 }
 
 #ifdef FINSH_USING_DESCRIPTION
-                rt_kprintf("%-16s -- %s\n", index->name, index->desc);
+                rt_kprintf("%-16s -- %s\r\n", index->name, index->desc);
 #else
-                rt_kprintf("%s\n", index->name);
+                rt_kprintf("%s\r\n", index->name);
 #endif
             }
         }
@@ -1024,7 +1078,7 @@ void list_prefix(char *prefix)
         {
             if (func_cnt == 0)
             {
-                rt_kprintf("--function:\n");
+                rt_kprintf("--function:\r\n");
                 if (*prefix != 0 && name_ptr == NULL)
                 {
                     /* set name_ptr */
@@ -1044,7 +1098,7 @@ void list_prefix(char *prefix)
                     min_length = length;
             }
 
-            rt_kprintf("[l] %s\n", syscall_item->syscall.name);
+            rt_kprintf("[l] %s\r\n", syscall_item->syscall.name);
         }
         syscall_item = syscall_item->next;
     }
@@ -1060,7 +1114,7 @@ void list_prefix(char *prefix)
             {
                 if (var_cnt == 0)
                 {
-                    rt_kprintf("--variable:\n");
+                    rt_kprintf("--variable:\r\n");
 
                     if (*prefix != 0 && name_ptr == NULL)
                     {
@@ -1083,9 +1137,9 @@ void list_prefix(char *prefix)
                 }
 
 #ifdef FINSH_USING_DESCRIPTION
-                rt_kprintf("%-16s -- %s\n", index->name, index->desc);
+                rt_kprintf("%-16s -- %s\r\n", index->name, index->desc);
 #else
-                rt_kprintf("%s\n", index->name);
+                rt_kprintf("%s\r\n", index->name);
 #endif
             }
         }
@@ -1099,7 +1153,7 @@ void list_prefix(char *prefix)
         {
             if (var_cnt == 0)
             {
-                rt_kprintf("--variable:\n");
+                rt_kprintf("--variable:\r\n");
                 if (*prefix != 0 && name_ptr == NULL)
                 {
                     /* set name_ptr */
@@ -1119,7 +1173,7 @@ void list_prefix(char *prefix)
                     min_length = length;
             }
 
-            rt_kprintf("[v] %s\n", sysvar_item->sysvar.name);
+            rt_kprintf("[v] %s\r\n", sysvar_item->sysvar.name);
         }
         sysvar_item = sysvar_item->next;
     }
