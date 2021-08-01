@@ -4,11 +4,11 @@
 #include "stm32f7xx.h"
 
 extern SDRAM_HandleTypeDef SDRAM_Handler;//SDRAM句柄
-#define Bank5_SDRAM_ADDR    ((rt_uint32_t)(0XC0000000)) //SDRAM开始地址
+#define Bank5_SDRAM_ADDR    ((uint32_t)(0XC0000000)) //SDRAM开始地址
 
 //SDRAM配置参数
-#define SDRAM_MODEREG_BURST_LENGTH_1             ((rt_uint16_t)0x0000)
-#define SDRAM_MODEREG_BURST_LENGTH_2             ((rt_uint16_t)0x0001)
+#define SDRAM_MODEREG_BURST_LENGTH_1             ((uint16_t)0x0000)
+#define SDRAM_MODEREG_BURST_LENGTH_2             ((uint16_t)0x0001)
 #define SDRAM_MODEREG_BURST_LENGTH_4             ((rt_uint16_t)0x0002)
 #define SDRAM_MODEREG_BURST_LENGTH_8             ((rt_uint16_t)0x0004)
 #define SDRAM_MODEREG_BURST_TYPE_SEQUENTIAL      ((rt_uint16_t)0x0000)
@@ -21,8 +21,8 @@ extern SDRAM_HandleTypeDef SDRAM_Handler;//SDRAM句柄
 
 void SDRAM_Init(void);
 void SDRAM_MPU_Config(void);
-rt_uint8_t SDRAM_Send_Cmd(rt_uint8_t bankx, rt_uint8_t cmd, rt_uint8_t refresh, rt_uint16_t regval);
-void FMC_SDRAM_WriteBuffer(rt_uint8_t *pBuffer, rt_uint32_t WriteAddr, rt_uint32_t n);
-void FMC_SDRAM_ReadBuffer(rt_uint8_t *pBuffer, rt_uint32_t ReadAddr, rt_uint32_t n);
+uint8_t SDRAM_Send_Cmd(uint8_t bankx, uint8_t cmd, uint8_t refresh, uint16_t regval);
+void FMC_SDRAM_WriteBuffer(uint8_t *pBuffer, uint32_t WriteAddr, uint32_t n);
+void FMC_SDRAM_ReadBuffer(uint8_t *pBuffer, uint32_t ReadAddr, uint32_t n);
 void SDRAM_Initialization_Sequence(SDRAM_HandleTypeDef *hsdram);
 #endif

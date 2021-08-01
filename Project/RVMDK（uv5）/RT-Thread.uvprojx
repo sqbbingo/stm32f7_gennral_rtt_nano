@@ -338,7 +338,7 @@
               <MiscControls></MiscControls>
               <Define>USE_HAL_DRIVER,STM32F767xx</Define>
               <Undefine></Undefine>
-              <IncludePath>..\..\Libraries\CMSIS\Include;..\..\Libraries\CMSIS\Device\ST\STM32F7xx\Include;..\..\Libraries\STM32F7xx_HAL_Driver\Inc;..\..\User;..\..\rtthread\3.1.5\include;..\..\User\bsp;..\..\rtthread\3.1.5\components\finsh;..\..\User\common;..\..\User\bsp\gpio;..\..\User\bsp\sdram;..\..\User\bsp\delay</IncludePath>
+              <IncludePath>..\..\Libraries\CMSIS\Include;..\..\Libraries\CMSIS\Device\ST\STM32F7xx\Include;..\..\Libraries\STM32F7xx_HAL_Driver\Inc;..\..\User;..\..\rtthread\3.1.5\include;..\..\User\bsp;..\..\rtthread\3.1.5\components\finsh;..\..\User\common;..\..\User\bsp\gpio;..\..\User\bsp\sdram;..\..\User\bsp\delay;..\..\User\bsp\lcd</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -906,6 +906,21 @@
               <FileName>ringbuffer.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\User\common\ringbuffer.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>hardware</GroupName>
+          <Files>
+            <File>
+              <FileName>lcd.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\User\bsp\lcd\lcd.c</FilePath>
+            </File>
+            <File>
+              <FileName>ltdc.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\User\bsp\lcd\ltdc.c</FilePath>
             </File>
           </Files>
         </Group>

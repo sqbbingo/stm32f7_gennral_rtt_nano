@@ -37,7 +37,7 @@ void SDRAM_Init(void)
 //发送SDRAM初始化序列
 void SDRAM_Initialization_Sequence(SDRAM_HandleTypeDef *hsdram)
 {
-	rt_uint32_t temp = 0;
+	uint32_t temp = 0;
 	//SDRAM控制器初始化完成以后还需要按照如下顺序初始化SDRAM
 	SDRAM_Send_Cmd(0, FMC_SDRAM_CMD_CLK_ENABLE, 1, 0); //时钟配置使能
 	delay_us(400);                                  //至少延时200us
@@ -47,7 +47,7 @@ void SDRAM_Initialization_Sequence(SDRAM_HandleTypeDef *hsdram)
 	//配置模式寄存器,SDRAM的bit0~bit2为指定突发访问的长度，
 	//bit3为指定突发访问的类型，bit4~bit6为CAS值，bit7和bit8为运行模式
 	//bit9为指定的写突发模式，bit10和bit11位保留位
-	temp = (rt_uint32_t)SDRAM_MODEREG_BURST_LENGTH_1          |	//设置突发长度:1(可以是1/2/4/8)
+	temp = (uint32_t)SDRAM_MODEREG_BURST_LENGTH_1          |	//设置突发长度:1(可以是1/2/4/8)
 	       SDRAM_MODEREG_BURST_TYPE_SEQUENTIAL   |	//设置突发类型:连续(可以是连续/交错)
 	       SDRAM_MODEREG_CAS_LATENCY_3           |	//设置CAS值:3(可以是2/3)
 	       SDRAM_MODEREG_OPERATING_MODE_STANDARD |   //设置操作模式:0,标准模式
@@ -104,9 +104,9 @@ void HAL_SDRAM_MspInit(SDRAM_HandleTypeDef *hsdram)
 //refresh:自刷新次数
 //regval:模式寄存器的定义
 //返回值:0,正常;1,失败.
-rt_uint8_t SDRAM_Send_Cmd(rt_uint8_t bankx, rt_uint8_t cmd, rt_uint8_t refresh, rt_uint16_t regval)
+uint8_t SDRAM_Send_Cmd(uint8_t bankx, uint8_t cmd, uint8_t refresh, uint16_t regval)
 {
-	rt_uint32_t target_bank = 0;
+	uint32_t target_bank = 0;
 	FMC_SDRAM_CommandTypeDef Command;
 
 	if (bankx == 0) target_bank = FMC_SDRAM_CMD_TARGET_BANK1;
@@ -126,11 +126,11 @@ rt_uint8_t SDRAM_Send_Cmd(rt_uint8_t bankx, rt_uint8_t cmd, rt_uint8_t refresh, 
 //pBuffer:字节指针
 //WriteAddr:要写入的地址
 //n:要写入的字节数
-void FMC_SDRAM_WriteBuffer(rt_uint8_t *pBuffer, rt_uint32_t WriteAddr, rt_uint32_t n)
+void FMC_SDRAM_WriteBuffer(uint8_t *pBuffer, uint32_t WriteAddr, uint32_t n)
 {
 	for (; n != 0; n--)
 	{
-		*(__IO rt_uint8_t*)(Bank5_SDRAM_ADDR + WriteAddr) = *pBuffer;
+		*(__IO uint8_t*)(Bank5_SDRAM_ADDR + WriteAddr) = *pBuffer;
 		WriteAddr++;
 		pBuffer++;
 	}
@@ -140,11 +140,11 @@ void FMC_SDRAM_WriteBuffer(rt_uint8_t *pBuffer, rt_uint32_t WriteAddr, rt_uint32
 //pBuffer:字节指针
 //ReadAddr:要读出的起始地址
 //n:要写入的字节数
-void FMC_SDRAM_ReadBuffer(rt_uint8_t *pBuffer, rt_uint32_t ReadAddr, rt_uint32_t n)
+void FMC_SDRAM_ReadBuffer(uint8_t *pBuffer, uint32_t ReadAddr, uint32_t n)
 {
 	for (; n != 0; n--)
 	{
-		*pBuffer++ = *(__IO rt_uint8_t*)(Bank5_SDRAM_ADDR + ReadAddr);
+		*pBuffer++ = *(__IO uint8_t*)(Bank5_SDRAM_ADDR + ReadAddr);
 		ReadAddr++;
 	}
 }
