@@ -696,7 +696,7 @@ void finsh_thread_entry(void *parameter)
         }
 
         /* handle end of line, break */
-        if (ch == '\r' || ch == '\r\n')
+        if (ch == '\r' || ch == '\n')
         {
 #ifdef FINSH_USING_HISTORY
             shell_push_history(shell);

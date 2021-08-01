@@ -14,6 +14,7 @@
 #include "./usart/bsp_debug_usart.h"
 #include "delay.h"
 #include "rtc.h"
+#include "adc.h"
 /*
 *************************************************************************
 *                               函数声明

@@ -107,31 +107,14 @@ static void lcd_thread_entry(void* parameter)
     RTC_TimeTypeDef RTC_TimeStruct;
     RTC_DateTypeDef RTC_DateStruct;
 
-    uint8_t x=0;
   	uint8_t lcd_id[12];
   	uint8_t tbuf[40];
-
-	rt_thread_mdelay(5000);
+  	short temp;
 
 	POINT_COLOR=RED; 
 	sprintf((char*)lcd_id,"LCD ID:%04X",lcddev.id);//将LCD ID打印到lcd_id数组
     while(1)
     {
-        switch(x)
-		{
-			case 0:LCD_Clear(WHITE);break;
-			case 1:LCD_Clear(BLACK);break;
-			case 2:LCD_Clear(BLUE);break;
-			case 3:LCD_Clear(RED);break;
-			case 4:LCD_Clear(MAGENTA);break;
-			case 5:LCD_Clear(GREEN);break;
-			case 6:LCD_Clear(CYAN);break; 
-			case 7:LCD_Clear(YELLOW);break;
-			case 8:LCD_Clear(BRRED);break;
-			case 9:LCD_Clear(GRAY);break;
-			case 10:LCD_Clear(LGRAY);break;
-			case 11:LCD_Clear(BROWN);break;
-		}
 		POINT_COLOR=RED;	  
 		LCD_ShowString(10,40,260,32,32,"Apollo STM32F4/F7"); 	
 		LCD_ShowString(10,80,240,24,24,"LTDC TEST");
@@ -145,9 +128,20 @@ static void lcd_thread_entry(void* parameter)
 		sprintf((char*)tbuf,"Date:20%02d-%02d-%02d",RTC_DateStruct.Year,RTC_DateStruct.Month,RTC_DateStruct.Date); 
 		LCD_ShowString(10,170,210,16,16,tbuf);	
 		sprintf((char*)tbuf,"Week:%d",RTC_DateStruct.WeekDay); 
-		LCD_ShowString(10,190,210,16,16,tbuf);
-	    x++;
-		if(x==12)x=0;      
+		LCD_ShowString(10,190,210,16,16,tbuf);   
+
+		LCD_ShowString(10,210,200,16,16,"TEMPERATE: 00.00C");
+		temp=Get_Temprate(); //得到温度值
+		if(temp<0)
+		{
+			temp=-temp;
+			LCD_ShowString(10+10*8,210,16,16,16,"-"); //显示负号
+		}
+		else 
+			LCD_ShowString(10+10*8,210,16,16,16," "); //无符号
+		LCD_ShowxNum(10+11*8,210,temp/100,2,16,0); //显示整数部分
+		LCD_ShowxNum(10+14*8,210,temp%100,2,16,0); //显示小数部分
+
 
 		rt_thread_mdelay(1000);	
 	}

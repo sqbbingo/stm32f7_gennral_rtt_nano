@@ -135,6 +135,7 @@ void rt_hw_board_init(void)
 	LCD_Init();
 	RTC_Init();
 	RTC_Set_WakeUp(RTC_WAKEUPCLOCK_CK_SPRE_16BITS,0);
+	adc_init();
 	/*
 	 * TODO 1: OS Tick Configuration
 	 * Enable the hardware timer and call the rt_os_tick_callback function
