@@ -197,7 +197,7 @@ static void gpio_out_set_cmd(int argc,char**argv)
 
 	HAL_GPIO_WritePin(GPIOx,Pinx,PinState);
 }
-MSH_CMD_EXPORT(gpio_out_set_cmd, gpio out set:GPIOx<a~k|A~K> Pinx<0~15> state<h/l|H/L|1/0>);
+FINSH_FUNCTION_EXPORT_ALIAS(gpio_out_set_cmd,__cmd_gpio_out_set, gpio out set:GPIOx<a~k|A~K> Pinx<0~15> state<h/l|H/L|1/0>);
 
 static void gpio_state_get_cmd(int argc,char**argv)
 {
@@ -236,7 +236,7 @@ static void gpio_state_get_cmd(int argc,char**argv)
 
 	rt_kprintf("GPIO%c.%d = %d \n",argv[1][0],atoi(argv[2]),HAL_GPIO_ReadPin(GPIOx,Pinx));
 }
-MSH_CMD_EXPORT(gpio_state_get_cmd, gpio state get:GPIOx<a~k|A~K> Pinx<0~15> );
+FINSH_FUNCTION_EXPORT_ALIAS(gpio_state_get_cmd, __cmd_gpio_state_get, gpio state get:GPIOx<a~k|A~K> Pinx<0~15> );
 
 
 

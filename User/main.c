@@ -104,8 +104,12 @@ static void led1_thread_entry(void* parameter)
 
 static void lcd_thread_entry(void* parameter)
 {
+    RTC_TimeTypeDef RTC_TimeStruct;
+    RTC_DateTypeDef RTC_DateStruct;
+
     uint8_t x=0;
   	uint8_t lcd_id[12];
+  	uint8_t tbuf[40];
 
 	rt_thread_mdelay(5000);
 
@@ -133,7 +137,15 @@ static void lcd_thread_entry(void* parameter)
 		LCD_ShowString(10,80,240,24,24,"LTDC TEST");
 		LCD_ShowString(10,110,240,16,16,"ATOM@ALIENTEK");
  		LCD_ShowString(10,130,240,16,16,lcd_id);		//显示LCD ID	      					 
-		LCD_ShowString(10,150,240,12,12,"2016/7/12");	      					 
+
+		RTC_Get_Time(&RTC_TimeStruct,RTC_FORMAT_BIN);
+		sprintf((char*)tbuf,"Time:%02d:%02d:%02d",RTC_TimeStruct.Hours,RTC_TimeStruct.Minutes,RTC_TimeStruct.Seconds); 
+		LCD_ShowString(10,150,210,16,16,tbuf);	
+		RTC_Get_Date(&RTC_DateStruct,RTC_FORMAT_BIN);
+		sprintf((char*)tbuf,"Date:20%02d-%02d-%02d",RTC_DateStruct.Year,RTC_DateStruct.Month,RTC_DateStruct.Date); 
+		LCD_ShowString(10,170,210,16,16,tbuf);	
+		sprintf((char*)tbuf,"Week:%d",RTC_DateStruct.WeekDay); 
+		LCD_ShowString(10,190,210,16,16,tbuf);
 	    x++;
 		if(x==12)x=0;      
 
