@@ -142,6 +142,7 @@ void rt_hw_board_init(void)
 	IIC_Init();
 	PCF8574_Init();
 	MPU9250_Init();
+	W25QXX_Init();
 
 	/*
 	 * TODO 1: OS Tick Configuration

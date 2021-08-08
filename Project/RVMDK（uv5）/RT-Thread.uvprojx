@@ -338,7 +338,7 @@
               <MiscControls></MiscControls>
               <Define>USE_HAL_DRIVER,STM32F767xx,MPL_LOG_NDEBUG=1,EMPL,MPU9250,EMPL_TARGET_STM32F4</Define>
               <Undefine></Undefine>
-              <IncludePath>..\..\Libraries\CMSIS\Include;..\..\Libraries\CMSIS\Device\ST\STM32F7xx\Include;..\..\Libraries\STM32F7xx_HAL_Driver\Inc;..\..\User;..\..\rtthread\3.1.5\include;..\..\User\bsp;..\..\rtthread\3.1.5\components\finsh;..\..\User\common;..\..\User\bsp\gpio;..\..\User\bsp\sdram;..\..\User\bsp\delay;..\..\User\bsp\lcd;..\..\User\bsp\rtc;..\..\User\bsp\adc;..\..\User\bsp\i2c;..\..\User\bsp\pcf8574;..\..\User\sys;..\..\User\bsp\mpu9250;..\..\User\bsp\mpu9250\DMP\driver\eMPL;..\..\User\bsp\mpu9250\DMP\driver\include;..\..\User\bsp\mpu9250\DMP\driver\stm32L;..\..\User\bsp\mpu9250\DMP\eMPL-hal;..\..\User\bsp\mpu9250\DMP\mllite;..\..\User\bsp\mpu9250\DMP\mpl</IncludePath>
+              <IncludePath>..\..\Libraries\CMSIS\Include;..\..\Libraries\CMSIS\Device\ST\STM32F7xx\Include;..\..\Libraries\STM32F7xx_HAL_Driver\Inc;..\..\User;..\..\rtthread\3.1.5\include;..\..\User\bsp;..\..\rtthread\3.1.5\components\finsh;..\..\User\common;..\..\User\bsp\gpio;..\..\User\bsp\sdram;..\..\User\bsp\delay;..\..\User\bsp\lcd;..\..\User\bsp\rtc;..\..\User\bsp\adc;..\..\User\bsp\i2c;..\..\User\bsp\pcf8574;..\..\User\sys;..\..\User\bsp\mpu9250;..\..\User\bsp\mpu9250\DMP\driver\eMPL;..\..\User\bsp\mpu9250\DMP\driver\include;..\..\User\bsp\mpu9250\DMP\driver\stm32L;..\..\User\bsp\mpu9250\DMP\eMPL-hal;..\..\User\bsp\mpu9250\DMP\mllite;..\..\User\bsp\mpu9250\DMP\mpl;..\..\User\bsp\qspi;..\..\User\bsp\w25qxx</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -951,6 +951,16 @@
               <FileName>mpu9250.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\User\bsp\mpu9250\mpu9250.c</FilePath>
+            </File>
+            <File>
+              <FileName>qspi.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\User\bsp\qspi\qspi.c</FilePath>
+            </File>
+            <File>
+              <FileName>w25qxx.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\User\bsp\w25qxx\w25qxx.c</FilePath>
             </File>
           </Files>
         </Group>
