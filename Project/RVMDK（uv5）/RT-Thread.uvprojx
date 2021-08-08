@@ -338,7 +338,7 @@
               <MiscControls></MiscControls>
               <Define>USE_HAL_DRIVER,STM32F767xx</Define>
               <Undefine></Undefine>
-              <IncludePath>..\..\Libraries\CMSIS\Include;..\..\Libraries\CMSIS\Device\ST\STM32F7xx\Include;..\..\Libraries\STM32F7xx_HAL_Driver\Inc;..\..\User;..\..\rtthread\3.1.5\include;..\..\User\bsp;..\..\rtthread\3.1.5\components\finsh;..\..\User\common;..\..\User\bsp\gpio;..\..\User\bsp\sdram;..\..\User\bsp\delay;..\..\User\bsp\lcd;..\..\User\bsp\rtc;..\..\User\bsp\adc;..\..\User\bsp\i2c;..\..\User\bsp\pcf8574</IncludePath>
+              <IncludePath>..\..\Libraries\CMSIS\Include;..\..\Libraries\CMSIS\Device\ST\STM32F7xx\Include;..\..\Libraries\STM32F7xx_HAL_Driver\Inc;..\..\User;..\..\rtthread\3.1.5\include;..\..\User\bsp;..\..\rtthread\3.1.5\components\finsh;..\..\User\common;..\..\User\bsp\gpio;..\..\User\bsp\sdram;..\..\User\bsp\delay;..\..\User\bsp\lcd;..\..\User\bsp\rtc;..\..\User\bsp\adc;..\..\User\bsp\i2c;..\..\User\bsp\pcf8574;..\..\User\sys</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -761,6 +761,11 @@
               <FileName>delay.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\User\bsp\delay\delay.c</FilePath>
+            </File>
+            <File>
+              <FileName>sys.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\User\sys\sys.c</FilePath>
             </File>
           </Files>
         </Group>
