@@ -143,7 +143,7 @@ void rt_hw_board_init(void)
 	PCF8574_Init();
 	MPU9250_Init();
 	W25QXX_Init();
-
+	NAND_Init();
 	/*
 	 * TODO 1: OS Tick Configuration
 	 * Enable the hardware timer and call the rt_os_tick_callback function

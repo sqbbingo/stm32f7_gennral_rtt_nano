@@ -22,6 +22,7 @@
 #include "inv_mpu.h"
 #include "inv_mpu_dmp_motion_driver.h" 
 #include "w25qxx.h"
+#include "nand.h"
 
 /*
 *************************************************************************
