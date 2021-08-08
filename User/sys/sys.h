@@ -1,5 +1,6 @@
 #ifndef _SYS_H
 #define _SYS_H
+#include "rtthread.h"
 #include "stm32f7xx.h"
 #include "core_cm7.h"
 #include "stm32f7xx_hal.h"

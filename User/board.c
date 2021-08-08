@@ -127,6 +127,9 @@ void rt_hw_board_init(void)
 	HAL_SYSTICK_Config( HAL_RCC_GetSysClockFreq() / RT_TICK_PER_SECOND );
 
 	/* 硬件BSP初始化统统放在这里，比如LED，串口，LCD等 */
+#ifdef RT_USING_CONSOLE
+	DEBUG_USART_Config();
+#endif
 	HAL_Init();
 	delay_init(216);                //延时函数初始化
 	SDRAM_Init();
@@ -138,6 +141,8 @@ void rt_hw_board_init(void)
 	adc_init();
 	IIC_Init();
 	PCF8574_Init();
+	MPU9250_Init();
+
 	/*
 	 * TODO 1: OS Tick Configuration
 	 * Enable the hardware timer and call the rt_os_tick_callback function
@@ -154,17 +159,4 @@ void rt_hw_board_init(void)
 #endif
 }
 
-#ifdef RT_USING_CONSOLE
-
-static int uart_init(void)
-{
-	/* usart 端口初始化 */
-	DEBUG_USART_Config();
-
-	return 0;
-}
-INIT_BOARD_EXPORT(uart_init);
-
-
-#endif
 

@@ -1,21 +1,11 @@
-/**
-  ******************************************************************************
-  * @file    bsp_led.c
-  * @author  fire
-  * @version V1.0
-  * @date    2017-xx-xx
-  * @brief   led应用函数接口
-  ******************************************************************************
-  * @attention
-  *
-  * 实验平台:秉火  STM32 F767 开发板
-  * 论坛    :http://www.firebbs.cn
-  * 淘宝    :http://firestm32.taobao.com
-  *
-  ******************************************************************************
-  */
-
 #include "./led/bsp_led.h"
+
+/** 控制LED灯亮灭的宏，
+	* LED低电平亮，设置ON=0，OFF=1
+	* 若LED高电平亮，把宏设置成ON=1 ，OFF=0 即可
+	*/
+#define ON  GPIO_PIN_RESET
+#define OFF GPIO_PIN_SET
 
 /**
  * @brief  初始化控制LED的IO

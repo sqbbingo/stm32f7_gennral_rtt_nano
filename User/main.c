@@ -53,7 +53,7 @@ int main(void)
 	    rt_thread_create( "led1",              /* 线程名字 */
 	                      led1_thread_entry,   /* 线程入口函数 */
 	                      RT_NULL,             /* 线程入口函数参数 */
-	                      512,                 /* 线程栈大小 */
+	                      2*1024,                 /* 线程栈大小 */
 	                      3,                   /* 线程的优先级 */
 	                      20);                 /* 线程时间片 */
 
@@ -90,6 +90,16 @@ int main(void)
 
 static void led1_thread_entry(void* parameter)
 {
+/*
+	int state = 1;
+	while(state)
+	{
+		state = mpu_dmp_init();
+		rt_kprintf("mpu_dmp_init fail state:%d \r\n",state);
+		rt_thread_mdelay(400);
+	}
+	rt_kprintf("mpu_dmp_init successful \r\n");
+*/
 	while (1)
 	{
 		LED1_ON;
