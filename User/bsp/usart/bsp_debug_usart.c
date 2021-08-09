@@ -94,6 +94,30 @@ void Usart_SendString(uint8_t *str)
 	} while (*(str + k) != '\0');
 
 }
+//加入以下代码,支持printf函数,而不需要选择use MicroLIB
+//#define PUTCHAR_PROTOTYPE int fputc(int ch, FILE *f)
+#if 1
+#pragma import(__use_no_semihosting)
+//标准库需要的支持函数
+struct __FILE
+{
+	int handle;
+};
+
+FILE __stdout;
+//定义_sys_exit()以避免使用半主机模式
+void _sys_exit(int x)
+{
+	x = x;
+}
+//重定义fputc函数
+int fputc(int ch, FILE *f)
+{
+	while ((USART1->ISR & 0X40) == 0); //循环发送,直到发送完毕
+	USART1->TDR = (uint8_t)ch;
+	return ch;
+}
+#else
 ///重定向c库函数printf到串口DEBUG_USART，重定向后可使用printf函数
 int fputc(int ch, FILE *f)
 {
@@ -111,6 +135,7 @@ int fgetc(FILE *f)
 	HAL_UART_Receive(&DebugUartHandle, (uint8_t *)&ch, 1, 1000);
 	return (ch);
 }
+#endif
 
 void rt_hw_console_output(const char *str)
 {

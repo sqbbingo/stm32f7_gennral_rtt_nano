@@ -188,7 +188,7 @@
             <hadIRAM2>1</hadIRAM2>
             <hadIROM2>1</hadIROM2>
             <StupSel>8</StupSel>
-            <useUlib>1</useUlib>
+            <useUlib>0</useUlib>
             <EndSel>0</EndSel>
             <uLtcg>0</uLtcg>
             <nSecure>0</nSecure>
@@ -338,7 +338,7 @@
               <MiscControls></MiscControls>
               <Define>USE_HAL_DRIVER,STM32F767xx,MPL_LOG_NDEBUG=1,EMPL,MPU9250,EMPL_TARGET_STM32F4</Define>
               <Undefine></Undefine>
-              <IncludePath>..\..\Libraries\CMSIS\Include;..\..\Libraries\CMSIS\Device\ST\STM32F7xx\Include;..\..\Libraries\STM32F7xx_HAL_Driver\Inc;..\..\User;..\..\rtthread\3.1.5\include;..\..\User\bsp;..\..\rtthread\3.1.5\components\finsh;..\..\User\common;..\..\User\bsp\gpio;..\..\User\bsp\sdram;..\..\User\bsp\delay;..\..\User\bsp\lcd;..\..\User\bsp\rtc;..\..\User\bsp\adc;..\..\User\bsp\i2c;..\..\User\bsp\pcf8574;..\..\User\sys;..\..\User\bsp\mpu9250;..\..\User\bsp\mpu9250\DMP\driver\eMPL;..\..\User\bsp\mpu9250\DMP\driver\include;..\..\User\bsp\mpu9250\DMP\driver\stm32L;..\..\User\bsp\mpu9250\DMP\eMPL-hal;..\..\User\bsp\mpu9250\DMP\mllite;..\..\User\bsp\mpu9250\DMP\mpl;..\..\User\bsp\qspi;..\..\User\bsp\w25qxx;..\..\User\bsp\nand;..\..\User\malloc</IncludePath>
+              <IncludePath>..\..\Libraries\CMSIS\Include;..\..\Libraries\CMSIS\Device\ST\STM32F7xx\Include;..\..\Libraries\STM32F7xx_HAL_Driver\Inc;..\..\User;..\..\rtthread\3.1.5\include;..\..\User\bsp;..\..\rtthread\3.1.5\components\finsh;..\..\User\common;..\..\User\bsp\gpio;..\..\User\bsp\sdram;..\..\User\bsp\delay;..\..\User\bsp\lcd;..\..\User\bsp\rtc;..\..\User\bsp\adc;..\..\User\bsp\i2c;..\..\User\bsp\pcf8574;..\..\User\sys;..\..\User\bsp\mpu9250;..\..\User\bsp\mpu9250\DMP\driver\eMPL;..\..\User\bsp\mpu9250\DMP\driver\include;..\..\User\bsp\mpu9250\DMP\driver\stm32L;..\..\User\bsp\mpu9250\DMP\eMPL-hal;..\..\User\bsp\mpu9250\DMP\mllite;..\..\User\bsp\mpu9250\DMP\mpl;..\..\User\bsp\qspi;..\..\User\bsp\w25qxx;..\..\User\bsp\nand;..\..\User\malloc;..\..\User\bsp\sdmmc</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -981,6 +981,11 @@
               <FileName>nandtester.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\User\bsp\nand\nandtester.c</FilePath>
+            </File>
+            <File>
+              <FileName>sdmmc_sdcard.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\User\bsp\sdmmc\sdmmc_sdcard.c</FilePath>
             </File>
           </Files>
         </Group>

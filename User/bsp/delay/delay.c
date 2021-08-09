@@ -154,6 +154,12 @@ void delay_ms(uint16_t nms)
 	}
 	delay_us((uint32_t)(nms * 1000));				//普通方式延时
 }
+
+void HAL_Delay(__IO uint32_t Delay)
+{
+	delay_ms(Delay);
+}
+
 #ifdef OS_RT_THREAD
 void rt_thread_udelay(uint32_t nus)
 {
