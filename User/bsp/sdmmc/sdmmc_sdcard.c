@@ -15,7 +15,7 @@ __align(4) u8 SDIO_DATA_BUFFER[512];
 u8 SD_Init(void)
 {
 	u8 SD_Error;
-	printf("sd init begin \r\n");
+	
 	//初始化时的时钟不能大于400KHZ
 	SDCARD_Handler.Instance = SDMMC1;
 	SDCARD_Handler.Init.ClockEdge = SDMMC_CLOCK_EDGE_RISING;            //上升沿
@@ -25,12 +25,11 @@ u8 SD_Init(void)
 	SDCARD_Handler.Init.HardwareFlowControl = SDMMC_HARDWARE_FLOW_CONTROL_DISABLE; //关闭硬件流控
 	SDCARD_Handler.Init.ClockDiv = SDMMC_TRANSFER_CLK_DIV;              //SD传输时钟频率最大25MHZ
 
-	printf("sd init int1 \r\n");
 	SD_Error = HAL_SD_Init(&SDCARD_Handler, &SDCardInfo);
 	if (SD_Error != SD_OK) return 1;
 
-	printf("sd init int2 \r\n");
-	SD_Error = HAL_SD_WideBusOperation_Config(&SDCARD_Handler, SDMMC_BUS_WIDE_4B); //使能宽总线模式
+//	printf("sd init int2 \r\n");
+//	SD_Error = HAL_SD_WideBusOperation_Config(&SDCARD_Handler, SDMMC_BUS_WIDE_4B); //使能宽总线模式
 
 	printf("sd init end \r\n");
 	if (SD_Error != SD_OK) return 2;
@@ -43,7 +42,7 @@ u8 SD_Init(void)
 void HAL_SD_MspInit(SD_HandleTypeDef *hsd)
 {
 	GPIO_InitTypeDef GPIO_Initure;
-	printf("sd msp init begin \r\n");
+
 	__HAL_RCC_SDMMC1_CLK_ENABLE();  //使能SDMMC1时钟
 	__HAL_RCC_DMA2_CLK_ENABLE();    //使能DMA2时钟
 	__HAL_RCC_GPIOC_CLK_ENABLE();   //使能GPIOC时钟
@@ -109,7 +108,7 @@ void HAL_SD_MspInit(SD_HandleTypeDef *hsd)
 	HAL_NVIC_SetPriority(DMA2_Stream6_IRQn, 3, 0);  //发送DMA中断优先级
 	HAL_NVIC_EnableIRQ(DMA2_Stream6_IRQn);
 #endif
-	printf("sd msp init end \r\n");
+
 }
 
 void show_sdcard_info(void)
