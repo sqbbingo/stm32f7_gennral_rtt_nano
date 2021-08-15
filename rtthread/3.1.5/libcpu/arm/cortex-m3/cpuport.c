@@ -196,7 +196,7 @@ static void bus_fault_track(void)
 
     if(SCB_CFSR_BFSR & (1<<7))
     {
-        rt_kprintf("SCB->BFAR:%08X\n", SCB_BFAR);
+        rt_kprintf("SCB->BFAR:%08X\r\n", SCB_BFAR);
     }
     else
     {
@@ -206,7 +206,7 @@ static void bus_fault_track(void)
 
 static void mem_manage_fault_track(void)
 {
-    rt_kprintf("mem manage fault:\n");
+    rt_kprintf("mem manage fault:\r\n");
     rt_kprintf("SCB_CFSR_MFSR:0x%02X ", SCB_CFSR_MFSR);
 
     if(SCB_CFSR_MFSR & (1<<0))
@@ -236,7 +236,7 @@ static void mem_manage_fault_track(void)
     if(SCB_CFSR_MFSR & (1<<7))
     {
         /* [7]:MMARVALID */
-        rt_kprintf("SCB->MMAR:%08X\n", SCB_MMAR);
+        rt_kprintf("SCB->MMAR:%08X\r\n", SCB_MMAR);
     }
     else
     {
@@ -249,7 +249,7 @@ static void hard_fault_track(void)
     if(SCB_HFSR & (1UL<<1))
     {
         /* [1]:VECTBL, Indicates hard fault is caused by failed vector fetch. */
-        rt_kprintf("failed vector fetch\n");
+        rt_kprintf("failed vector fetch\r\n");
     }
 
     if(SCB_HFSR & (1UL<<30))
@@ -275,7 +275,7 @@ static void hard_fault_track(void)
     if(SCB_HFSR & (1UL<<31))
     {
         /* [31]:DEBUGEVT, Indicates hard fault is triggered by debug event. */
-        rt_kprintf("debug event\n");
+        rt_kprintf("debug event\r\n");
     }
 }
 #endif /* RT_USING_FINSH */
@@ -303,23 +303,23 @@ void rt_hw_hard_fault_exception(struct exception_info * exception_info)
             return;
     }
 
-    rt_kprintf("psr: 0x%08x\n", context->exception_stack_frame.psr);
+    rt_kprintf("psr: 0x%08x\r\n", context->exception_stack_frame.psr);
 
-    rt_kprintf("r00: 0x%08x\n", context->exception_stack_frame.r0);
-    rt_kprintf("r01: 0x%08x\n", context->exception_stack_frame.r1);
-    rt_kprintf("r02: 0x%08x\n", context->exception_stack_frame.r2);
-    rt_kprintf("r03: 0x%08x\n", context->exception_stack_frame.r3);
-    rt_kprintf("r04: 0x%08x\n", context->r4);
-    rt_kprintf("r05: 0x%08x\n", context->r5);
-    rt_kprintf("r06: 0x%08x\n", context->r6);
-    rt_kprintf("r07: 0x%08x\n", context->r7);
-    rt_kprintf("r08: 0x%08x\n", context->r8);
-    rt_kprintf("r09: 0x%08x\n", context->r9);
-    rt_kprintf("r10: 0x%08x\n", context->r10);
-    rt_kprintf("r11: 0x%08x\n", context->r11);
-    rt_kprintf("r12: 0x%08x\n", context->exception_stack_frame.r12);
-    rt_kprintf(" lr: 0x%08x\n", context->exception_stack_frame.lr);
-    rt_kprintf(" pc: 0x%08x\n", context->exception_stack_frame.pc);
+    rt_kprintf("r00: 0x%08x\r\n", context->exception_stack_frame.r0);
+    rt_kprintf("r01: 0x%08x\r\n", context->exception_stack_frame.r1);
+    rt_kprintf("r02: 0x%08x\r\n", context->exception_stack_frame.r2);
+    rt_kprintf("r03: 0x%08x\r\n", context->exception_stack_frame.r3);
+    rt_kprintf("r04: 0x%08x\r\n", context->r4);
+    rt_kprintf("r05: 0x%08x\r\n", context->r5);
+    rt_kprintf("r06: 0x%08x\r\n", context->r6);
+    rt_kprintf("r07: 0x%08x\r\n", context->r7);
+    rt_kprintf("r08: 0x%08x\r\n", context->r8);
+    rt_kprintf("r09: 0x%08x\r\n", context->r9);
+    rt_kprintf("r10: 0x%08x\r\n", context->r10);
+    rt_kprintf("r11: 0x%08x\r\n", context->r11);
+    rt_kprintf("r12: 0x%08x\r\n", context->exception_stack_frame.r12);
+    rt_kprintf(" lr: 0x%08x\r\n", context->exception_stack_frame.lr);
+    rt_kprintf(" pc: 0x%08x\r\n", context->exception_stack_frame.pc);
 
     if(exception_info->exc_return & (1 << 2) )
     {
@@ -346,7 +346,7 @@ void rt_hw_hard_fault_exception(struct exception_info * exception_info)
  */
 void rt_hw_cpu_shutdown(void)
 {
-    rt_kprintf("shutdown...\n");
+    rt_kprintf("shutdown...\r\n");
 
     RT_ASSERT(0);
 }

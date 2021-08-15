@@ -199,165 +199,165 @@ void rt_hw_exception_install(rt_err_t (*exception_handle)(void *context))
 #ifdef RT_USING_FINSH
 static void usage_fault_track(void)
 {
-    rt_kprintf("usage fault:\n");
+    rt_kprintf("usage fault:\r\n");
     rt_kprintf("SCB_CFSR_UFSR:0x%02X ", SCB_CFSR_UFSR);
 
-    if(SCB_CFSR_UFSR & (1<<0))
+    if (SCB_CFSR_UFSR & (1 << 0))
     {
         /* [0]:UNDEFINSTR */
         rt_kprintf("UNDEFINSTR ");
     }
 
-    if(SCB_CFSR_UFSR & (1<<1))
+    if (SCB_CFSR_UFSR & (1 << 1))
     {
         /* [1]:INVSTATE */
         rt_kprintf("INVSTATE ");
     }
 
-    if(SCB_CFSR_UFSR & (1<<2))
+    if (SCB_CFSR_UFSR & (1 << 2))
     {
         /* [2]:INVPC */
         rt_kprintf("INVPC ");
     }
 
-    if(SCB_CFSR_UFSR & (1<<3))
+    if (SCB_CFSR_UFSR & (1 << 3))
     {
         /* [3]:NOCP */
         rt_kprintf("NOCP ");
     }
 
-    if(SCB_CFSR_UFSR & (1<<8))
+    if (SCB_CFSR_UFSR & (1 << 8))
     {
         /* [8]:UNALIGNED */
         rt_kprintf("UNALIGNED ");
     }
 
-    if(SCB_CFSR_UFSR & (1<<9))
+    if (SCB_CFSR_UFSR & (1 << 9))
     {
         /* [9]:DIVBYZERO */
         rt_kprintf("DIVBYZERO ");
     }
 
-    rt_kprintf("\n");
+    rt_kprintf("\r\n");
 }
 
 static void bus_fault_track(void)
 {
-    rt_kprintf("bus fault:\n");
+    rt_kprintf("bus fault:\r\n");
     rt_kprintf("SCB_CFSR_BFSR:0x%02X ", SCB_CFSR_BFSR);
 
-    if(SCB_CFSR_BFSR & (1<<0))
+    if (SCB_CFSR_BFSR & (1 << 0))
     {
         /* [0]:IBUSERR */
         rt_kprintf("IBUSERR ");
     }
 
-    if(SCB_CFSR_BFSR & (1<<1))
+    if (SCB_CFSR_BFSR & (1 << 1))
     {
         /* [1]:PRECISERR */
         rt_kprintf("PRECISERR ");
     }
 
-    if(SCB_CFSR_BFSR & (1<<2))
+    if (SCB_CFSR_BFSR & (1 << 2))
     {
         /* [2]:IMPRECISERR */
         rt_kprintf("IMPRECISERR ");
     }
 
-    if(SCB_CFSR_BFSR & (1<<3))
+    if (SCB_CFSR_BFSR & (1 << 3))
     {
         /* [3]:UNSTKERR */
         rt_kprintf("UNSTKERR ");
     }
 
-    if(SCB_CFSR_BFSR & (1<<4))
+    if (SCB_CFSR_BFSR & (1 << 4))
     {
         /* [4]:STKERR */
         rt_kprintf("STKERR ");
     }
 
-    if(SCB_CFSR_BFSR & (1<<7))
+    if (SCB_CFSR_BFSR & (1 << 7))
     {
-        rt_kprintf("SCB->BFAR:%08X\n", SCB_BFAR);
+        rt_kprintf("SCB->BFAR:%08X\r\n", SCB_BFAR);
     }
     else
     {
-        rt_kprintf("\n");
+        rt_kprintf("\r\n");
     }
 }
 
 static void mem_manage_fault_track(void)
 {
-    rt_kprintf("mem manage fault:\n");
+    rt_kprintf("mem manage fault:\r\n");
     rt_kprintf("SCB_CFSR_MFSR:0x%02X ", SCB_CFSR_MFSR);
 
-    if(SCB_CFSR_MFSR & (1<<0))
+    if (SCB_CFSR_MFSR & (1 << 0))
     {
         /* [0]:IACCVIOL */
         rt_kprintf("IACCVIOL ");
     }
 
-    if(SCB_CFSR_MFSR & (1<<1))
+    if (SCB_CFSR_MFSR & (1 << 1))
     {
         /* [1]:DACCVIOL */
         rt_kprintf("DACCVIOL ");
     }
 
-    if(SCB_CFSR_MFSR & (1<<3))
+    if (SCB_CFSR_MFSR & (1 << 3))
     {
         /* [3]:MUNSTKERR */
         rt_kprintf("MUNSTKERR ");
     }
 
-    if(SCB_CFSR_MFSR & (1<<4))
+    if (SCB_CFSR_MFSR & (1 << 4))
     {
         /* [4]:MSTKERR */
         rt_kprintf("MSTKERR ");
     }
 
-    if(SCB_CFSR_MFSR & (1<<7))
+    if (SCB_CFSR_MFSR & (1 << 7))
     {
         /* [7]:MMARVALID */
-        rt_kprintf("SCB->MMAR:%08X\n", SCB_MMAR);
+        rt_kprintf("SCB->MMAR:%08X\r\n", SCB_MMAR);
     }
     else
     {
-        rt_kprintf("\n");
+        rt_kprintf("\r\n");
     }
 }
 
 static void hard_fault_track(void)
 {
-    if(SCB_HFSR & (1UL<<1))
+    if (SCB_HFSR & (1UL << 1))
     {
         /* [1]:VECTBL, Indicates hard fault is caused by failed vector fetch. */
-        rt_kprintf("failed vector fetch\n");
+        rt_kprintf("failed vector fetch\r\n");
     }
 
-    if(SCB_HFSR & (1UL<<30))
+    if (SCB_HFSR & (1UL << 30))
     {
         /* [30]:FORCED, Indicates hard fault is taken because of bus fault,
                         memory management fault, or usage fault. */
-        if(SCB_CFSR_BFSR)
+        if (SCB_CFSR_BFSR)
         {
             bus_fault_track();
         }
 
-        if(SCB_CFSR_MFSR)
+        if (SCB_CFSR_MFSR)
         {
             mem_manage_fault_track();
         }
 
-        if(SCB_CFSR_UFSR)
+        if (SCB_CFSR_UFSR)
         {
             usage_fault_track();
         }
     }
 
-    if(SCB_HFSR & (1UL<<31))
+    if (SCB_HFSR & (1UL << 31))
     {
         /* [31]:DEBUGEVT, Indicates hard fault is triggered by debug event. */
-        rt_kprintf("debug event\n");
+        rt_kprintf("debug event\r\n");
     }
 }
 #endif /* RT_USING_FINSH */
@@ -382,23 +382,23 @@ void rt_hw_hard_fault_exception(struct exception_info *exception_info)
         if (result == RT_EOK) return;
     }
 
-    rt_kprintf("psr: 0x%08x\n", context->exception_stack_frame.psr);
+    rt_kprintf("psr: 0x%08x\r\r\n", context->exception_stack_frame.psr);
 
-    rt_kprintf("r00: 0x%08x\n", context->exception_stack_frame.r0);
-    rt_kprintf("r01: 0x%08x\n", context->exception_stack_frame.r1);
-    rt_kprintf("r02: 0x%08x\n", context->exception_stack_frame.r2);
-    rt_kprintf("r03: 0x%08x\n", context->exception_stack_frame.r3);
-    rt_kprintf("r04: 0x%08x\n", context->r4);
-    rt_kprintf("r05: 0x%08x\n", context->r5);
-    rt_kprintf("r06: 0x%08x\n", context->r6);
-    rt_kprintf("r07: 0x%08x\n", context->r7);
-    rt_kprintf("r08: 0x%08x\n", context->r8);
-    rt_kprintf("r09: 0x%08x\n", context->r9);
-    rt_kprintf("r10: 0x%08x\n", context->r10);
-    rt_kprintf("r11: 0x%08x\n", context->r11);
-    rt_kprintf("r12: 0x%08x\n", context->exception_stack_frame.r12);
-    rt_kprintf(" lr: 0x%08x\n", context->exception_stack_frame.lr);
-    rt_kprintf(" pc: 0x%08x\n", context->exception_stack_frame.pc);
+    rt_kprintf("r00: 0x%08x\r\r\n", context->exception_stack_frame.r0);
+    rt_kprintf("r01: 0x%08x\r\n", context->exception_stack_frame.r1);
+    rt_kprintf("r02: 0x%08x\r\n", context->exception_stack_frame.r2);
+    rt_kprintf("r03: 0x%08x\r\n", context->exception_stack_frame.r3);
+    rt_kprintf("r04: 0x%08x\r\n", context->r4);
+    rt_kprintf("r05: 0x%08x\r\n", context->r5);
+    rt_kprintf("r06: 0x%08x\r\n", context->r6);
+    rt_kprintf("r07: 0x%08x\r\n", context->r7);
+    rt_kprintf("r08: 0x%08x\r\n", context->r8);
+    rt_kprintf("r09: 0x%08x\r\n", context->r9);
+    rt_kprintf("r10: 0x%08x\r\n", context->r10);
+    rt_kprintf("r11: 0x%08x\r\n", context->r11);
+    rt_kprintf("r12: 0x%08x\r\n", context->exception_stack_frame.r12);
+    rt_kprintf(" lr: 0x%08x\r\n", context->exception_stack_frame.lr);
+    rt_kprintf(" pc: 0x%08x\r\n", context->exception_stack_frame.pc);
 
     if (exception_info->exc_return & (1 << 2))
     {
@@ -430,11 +430,11 @@ void rt_hw_hard_fault_exception(struct exception_info *exception_info)
  */
 void rt_hw_cpu_shutdown(void)
 {
-    rt_kprintf("shutdown...\n");
+    rt_kprintf("shutdown...\r\n");
 
     RT_ASSERT(0);
 }
-FINSH_FUNCTION_EXPORT_ALIAS(rt_hw_cpu_shutdown	, __cmd_poweroff, shutdown);
+FINSH_FUNCTION_EXPORT_ALIAS(rt_hw_cpu_shutdown  , __cmd_poweroff, shutdown);
 
 /**
  * reset CPU
@@ -468,7 +468,7 @@ __asm int __rt_ffs(int value)
     CLZ     r0, r0
     ADDS    r0, r0, #0x01
 
-exit
+    exit
     BX      lr
 }
 #elif defined(__CLANG_ARM)

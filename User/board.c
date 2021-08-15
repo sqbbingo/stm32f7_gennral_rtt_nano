@@ -121,6 +121,9 @@ static void SystemClock_Config(void)
  */
 void rt_hw_board_init(void)
 {
+ 	u32 total,free;
+	u8 res=0;	
+
 	SystemClock_Config();
 
 	/* 初始化SysTick */
@@ -143,12 +146,12 @@ void rt_hw_board_init(void)
 	PCF8574_Init();
 	MPU9250_Init();
 	W25QXX_Init();
-	NAND_Init();
- 	my_mem_init(SRAMIN);		    //³õÊ¼»¯ÄÚ²¿ÄÚ´æ³Ø
+//	NAND_Init();
+	my_mem_init(SRAMIN);		    //³õÊ¼»¯ÄÚ²¿ÄÚ´æ³Ø
 	my_mem_init(SRAMEX);		    //³õÊ¼»¯Íâ²¿ÄÚ´æ³Ø
-	my_mem_init(SRAMDTCM);		    //³õÊ¼»¯CCMÄÚ´æ³Ø 
+//	my_mem_init(SRAMDTCM);		    //³õÊ¼»¯CCMÄÚ´æ³Ø
 
-	if(SD_Init())
+	if (SD_Init())
 	{
 		printf("sd init fail \r\n");
 	}
@@ -156,7 +159,51 @@ void rt_hw_board_init(void)
 	{
 		show_sdcard_info();
 	}
-	
+	FTL_Init();
+	exfuns_init();							//为fatfs相关变量申请内存
+	printf("mount:0 \r\n");
+//	f_mount(fs[0], "0:", 1); 					//挂载SD卡
+	res = f_mount(fs[1], "1:", 1); 				//挂载FLASH.
+	if (res == 0X0D) //FLASH磁盘,FAT文件系统错误,重新格式化FLASH
+	{
+		LCD_ShowString(30, 150, 200, 16, 16, "Flash Disk Formatting...");	//格式化FLASH
+		res = f_mkfs("1:", 1, 4096); //格式化FLASH,1,盘符;1,不需要引导区,8个扇区为1个簇
+		if (res == 0)
+		{
+			f_setlabel((const TCHAR *)"1:ALIENTEK");	//设置Flash磁盘的名字为：ALIENTEK
+			LCD_ShowString(30, 150, 200, 16, 16, "Flash Disk Format Finish");	//格式化完成
+		} else LCD_ShowString(30, 150, 200, 16, 16, "Flash Disk Format Error ");	//格式化失败
+		delay_ms(1000);
+	}
+	res = f_mount(fs[2], "2:", 1); 				//挂载NAND FLASH.
+	if (res == 0X0D) //NAND FLASH磁盘,FAT文件系统错误,重新格式化NAND FLASH
+	{
+		LCD_ShowString(30, 150, 200, 16, 16, "NAND Disk Formatting..."); //格式化NAND
+		res = f_mkfs("2:", 1, 4096); //格式化FLASH,2,盘符;1,不需要引导区,8个扇区为1个簇
+		if (res == 0)
+		{
+			f_setlabel((const TCHAR *)"2:NANDDISK");	//设置Flash磁盘的名字为：NANDDISK
+			LCD_ShowString(30, 150, 200, 16, 16, "NAND Disk Format Finish");		//格式化完成
+		} else LCD_ShowString(30, 150, 200, 16, 16, "NAND Disk Format Error ");	//格式化失败
+		delay_ms(1000);
+	}
+	LCD_Fill(30, 150, 240, 150 + 16, WHITE);		//清除显示
+	if (exf_getfree("0:", &total, &free))	//得到SD卡的总容量和剩余容量
+	{
+		LCD_ShowString(30, 150, 200, 16, 16, "SD Card Fatfs Error!");
+		delay_ms(200);
+		LCD_Fill(30, 150, 240, 150 + 16, WHITE);	//清除显示
+		delay_ms(200);
+	}
+	else
+	{
+		POINT_COLOR = BLUE; //设置字体为蓝色
+		LCD_ShowString(30, 150, 200, 16, 16, "FATFS OK!");
+		LCD_ShowString(30, 170, 200, 16, 16, "SD Total Size:     MB");
+		LCD_ShowString(30, 190, 200, 16, 16, "SD  Free Size:     MB");
+		LCD_ShowNum(30 + 8 * 14, 170, total >> 10, 5, 16);	//显示SD卡总容量 MB
+		LCD_ShowNum(30 + 8 * 14, 190, free >> 10, 5, 16); //显示SD卡剩余容量 MB
+	}
 	/*
 	 * TODO 1: OS Tick Configuration
 	 * Enable the hardware timer and call the rt_os_tick_callback function

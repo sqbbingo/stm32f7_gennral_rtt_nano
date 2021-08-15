@@ -119,18 +119,26 @@ static void lcd_thread_entry(void* parameter)
 
   	uint8_t lcd_id[12];
   	uint8_t tbuf[40];
+  	u32 total,free;
   	short temp;
 
 	POINT_COLOR=RED; 
-	sprintf((char*)lcd_id,"LCD ID:%04X",lcddev.id);//将LCD ID打印到lcd_id数组
+	sprintf((char*)lcd_id,"LCD ID:%04X",lcddev.id);//将LCD ID打印到lcd_id数组  
+	LCD_ShowString(10,40,260,32,32,"bigo test");
+	exf_getfree("1:", &total, &free);
+	LCD_ShowString(10,80,240,5,16,"Flash total:  MB free:  MB");
+	LCD_ShowNum(10 + 8 * 12, 80, total >> 10, 2, 16);	//显示flash总容量 MB
+	LCD_ShowNum(10 + 8 * 22, 80, free >> 10, 2, 16); //显示flash剩余容量 MB
+
+	exf_getfree("2:", &total, &free);
+	LCD_ShowString(10,100,240,5,16,"Nand total:   MB free:   MB");
+	LCD_ShowNum(10 + 8 * 11, 100, total >> 10, 3, 16);	//显示nand总容量 MB
+	LCD_ShowNum(10 + 8 * 22, 100, free >> 10, 3, 16); //显示nand剩余容量 MB
+
+	LCD_ShowString(10,130,240,16,16,lcd_id);		//显示LCD ID				
+
     while(1)
     {
-		POINT_COLOR=RED;	  
-		LCD_ShowString(10,40,260,32,32,"Apollo STM32F4/F7"); 	
-		LCD_ShowString(10,80,240,24,24,"LTDC TEST");
-		LCD_ShowString(10,110,240,16,16,"ATOM@ALIENTEK");
- 		LCD_ShowString(10,130,240,16,16,lcd_id);		//显示LCD ID	      					 
-
 		RTC_Get_Time(&RTC_TimeStruct,RTC_FORMAT_BIN);
 		sprintf((char*)tbuf,"Time:%02d:%02d:%02d",RTC_TimeStruct.Hours,RTC_TimeStruct.Minutes,RTC_TimeStruct.Seconds); 
 		LCD_ShowString(10,150,210,16,16,tbuf);	

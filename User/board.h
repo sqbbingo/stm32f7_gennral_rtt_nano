@@ -25,6 +25,9 @@
 #include "w25qxx.h"
 #include "nand.h"
 #include "sdmmc_sdcard.h"
+#include "ftl.h"  
+#include "ff.h"
+#include "exfuns.h"
 
 /*
 *************************************************************************
