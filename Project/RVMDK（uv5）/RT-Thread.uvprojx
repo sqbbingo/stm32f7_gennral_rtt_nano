@@ -338,7 +338,7 @@
               <MiscControls></MiscControls>
               <Define>USE_HAL_DRIVER,STM32F767xx,MPL_LOG_NDEBUG=1,EMPL,MPU9250,EMPL_TARGET_STM32F4</Define>
               <Undefine></Undefine>
-              <IncludePath>..\..\Libraries\CMSIS\Include;..\..\Libraries\CMSIS\Device\ST\STM32F7xx\Include;..\..\Libraries\STM32F7xx_HAL_Driver\Inc;..\..\User;..\..\rtthread\3.1.5\include;..\..\User\bsp;..\..\rtthread\3.1.5\components\finsh;..\..\User\common;..\..\User\bsp\gpio;..\..\User\bsp\sdram;..\..\User\bsp\delay;..\..\User\bsp\lcd;..\..\User\bsp\rtc;..\..\User\bsp\adc;..\..\User\bsp\i2c;..\..\User\bsp\pcf8574;..\..\User\sys;..\..\User\bsp\mpu9250;..\..\User\bsp\mpu9250\DMP\driver\eMPL;..\..\User\bsp\mpu9250\DMP\driver\include;..\..\User\bsp\mpu9250\DMP\driver\stm32L;..\..\User\bsp\mpu9250\DMP\eMPL-hal;..\..\User\bsp\mpu9250\DMP\mllite;..\..\User\bsp\mpu9250\DMP\mpl;..\..\User\bsp\qspi;..\..\User\bsp\w25qxx;..\..\User\bsp\nand;..\..\User\malloc;..\..\User\bsp\sdmmc;..\..\User\fatfs\exfuns;..\..\User\fatfs\src</IncludePath>
+              <IncludePath>..\..\Libraries\CMSIS\Include;..\..\Libraries\CMSIS\Device\ST\STM32F7xx\Include;..\..\Libraries\STM32F7xx_HAL_Driver\Inc;..\..\User;..\..\rtthread\3.1.5\include;..\..\User\bsp;..\..\rtthread\3.1.5\components\finsh;..\..\User\common;..\..\User\bsp\gpio;..\..\User\bsp\sdram;..\..\User\bsp\delay;..\..\User\bsp\lcd;..\..\User\bsp\rtc;..\..\User\bsp\adc;..\..\User\bsp\i2c;..\..\User\bsp\pcf8574;..\..\User\sys;..\..\User\bsp\mpu9250;..\..\User\bsp\mpu9250\DMP\driver\eMPL;..\..\User\bsp\mpu9250\DMP\driver\include;..\..\User\bsp\mpu9250\DMP\driver\stm32L;..\..\User\bsp\mpu9250\DMP\eMPL-hal;..\..\User\bsp\mpu9250\DMP\mllite;..\..\User\bsp\mpu9250\DMP\mpl;..\..\User\bsp\qspi;..\..\User\bsp\w25qxx;..\..\User\bsp\nand;..\..\User\malloc;..\..\User\bsp\sdmmc;..\..\User\fatfs\exfuns;..\..\User\fatfs\src;..\..\User\bsp\usart</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -743,11 +743,6 @@
               <FilePath>..\..\User\board.c</FilePath>
             </File>
             <File>
-              <FileName>bsp_debug_usart.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\User\bsp\usart\bsp_debug_usart.c</FilePath>
-            </File>
-            <File>
               <FileName>gpio.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\User\bsp\gpio\gpio.c</FilePath>
@@ -766,6 +761,11 @@
               <FileName>sys.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\User\sys\sys.c</FilePath>
+            </File>
+            <File>
+              <FileName>usart.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\User\bsp\usart\usart.c</FilePath>
             </File>
           </Files>
         </Group>

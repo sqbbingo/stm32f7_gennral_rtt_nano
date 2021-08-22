@@ -37,7 +37,7 @@
 
 #include "myiic.h"
 #include "delay.h"
-#include "./usart/bsp_debug_usart.h"
+#include "usart.h"
 #include "mpu9250.h"
 
 /* The following functions must be defined for this platform:

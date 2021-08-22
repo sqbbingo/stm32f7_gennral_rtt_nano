@@ -13,6 +13,7 @@
 #include "board.h"
 #include "rtthread.h"
 #include "lcd.h"
+//#include "lwip_comm.h"
 
 /*
 *************************************************************************
@@ -22,65 +23,7 @@
 /* 定义线程控制块 */
 static rt_thread_t led1_thread = RT_NULL;
 static rt_thread_t lcd_thread = RT_NULL;
-
-/*
-*************************************************************************
-*                             函数声明
-*************************************************************************
-*/
-static void led1_thread_entry(void* parameter);
-static void lcd_thread_entry(void* parameter);
-
-/*
-*************************************************************************
-*                             main 函数
-*************************************************************************
-*/
-/**
-  * @brief  主函数
-  * @param  无
-  * @retval 无
-  */
-int main(void)
-{
-	/*
-	* 开发板硬件初始化，RTT系统初始化已经在main函数之前完成，
-	* 即在component.c文件中的rtthread_startup()函数中完成了。
-	* 所以在main函数中，只需要创建线程和启动线程即可。
-	*/
-
-	led1_thread =                          /* 线程控制块指针 */
-	    rt_thread_create( "led1",              /* 线程名字 */
-	                      led1_thread_entry,   /* 线程入口函数 */
-	                      RT_NULL,             /* 线程入口函数参数 */
-	                      512,                 /* 线程栈大小 */
-	                      3,                   /* 线程的优先级 */
-	                      20);                 /* 线程时间片 */
-
-	/* 启动线程，开启调度 */
-	if (led1_thread != RT_NULL)
-		rt_thread_startup(led1_thread);
-	else
-		return -1;
-
-	lcd_thread =                          /* 线程控制块指针 */
-	    rt_thread_create( "lcd",              /* 线程名字 */
-	                      lcd_thread_entry,   /* 线程入口函数 */
-	                      RT_NULL,             /* 线程入口函数参数 */
-	                      2*1024,                 /* 线程栈大小 */
-	                      3,                   /* 线程的优先级 */
-	                      20);                 /* 线程时间片 */
-
-	/* 启动线程，开启调度 */
-	if (lcd_thread != RT_NULL)
-		rt_thread_startup(lcd_thread);
-	else
-	{
-		rt_kprintf("lcd thread create fail! \r\n");
-		return -1;
-	}
-
-}
+static rt_thread_t lwip_thread = RT_NULL;
 
 /*
 *************************************************************************
@@ -163,6 +106,76 @@ static void lcd_thread_entry(void* parameter)
 
 		rt_thread_mdelay(1000);	
 	}
+
+}
+
+static void lwip_thread_entry(void* parameter)
+{
+	while(1) 	    //lwip初始化
+	{
+		LCD_ShowString(30,110,200,20,16,"Lwip Init failed!"); 	//lwip初始化失败
+		rt_thread_mdelay(500);
+		LCD_Fill(30,110,230,150,WHITE);
+		rt_thread_mdelay(500);
+	}
+
+}
+
+/*
+*************************************************************************
+*                             main 函数
+*************************************************************************
+*/
+/**
+  * @brief  主函数
+  * @param  无
+  * @retval 无
+  */
+int main(void)
+{
+	/*
+	* 开发板硬件初始化，RTT系统初始化已经在main函数之前完成，
+	* 即在component.c文件中的rtthread_startup()函数中完成了。
+	* 所以在main函数中，只需要创建线程和启动线程即可。
+	*/
+
+	led1_thread =                          /* 线程控制块指针 */
+	    rt_thread_create( "led1",              /* 线程名字 */
+	                      led1_thread_entry,   /* 线程入口函数 */
+	                      RT_NULL,             /* 线程入口函数参数 */
+	                      512,                 /* 线程栈大小 */
+	                      3,                   /* 线程的优先级 */
+	                      20);                 /* 线程时间片 */
+
+	/* 启动线程，开启调度 */
+	if (led1_thread != RT_NULL)
+		rt_thread_startup(led1_thread);
+	else
+		return -1;
+
+	lcd_thread =                          /* 线程控制块指针 */
+	    rt_thread_create( "lcd",              /* 线程名字 */
+	                      lcd_thread_entry,   /* 线程入口函数 */
+	                      RT_NULL,             /* 线程入口函数参数 */
+	                      2*1024,                 /* 线程栈大小 */
+	                      3,                   /* 线程的优先级 */
+	                      20);                 /* 线程时间片 */
+
+	/* 启动线程，开启调度 */
+	if (lcd_thread != RT_NULL)
+		rt_thread_startup(lcd_thread);
+	else
+	{
+		rt_kprintf("lcd thread create fail! \r\n");
+		return -1;
+	}
+
+	lwip_thread = rt_thread_create("lwip", 
+								   lwip_thread_entry,
+								   RT_NULL,
+								   2 * 1024,
+								   2,
+								   30);
 
 }
 

@@ -9,7 +9,7 @@
 	*/
 
 #include <rtthread.h>
-#include "./usart/bsp_debug_usart.h"
+#include "usart.h"
 #include "ringbuffer.h"
 
 #define DEBUG_UART_RX_BUF_LEN 16

@@ -147,9 +147,9 @@ void rt_hw_board_init(void)
 	MPU9250_Init();
 	W25QXX_Init();
 //	NAND_Init();
-	my_mem_init(SRAMIN);		    //³õÊ¼»¯ÄÚ²¿ÄÚ´æ³Ø
-	my_mem_init(SRAMEX);		    //³õÊ¼»¯Íâ²¿ÄÚ´æ³Ø
-//	my_mem_init(SRAMDTCM);		    //³õÊ¼»¯CCMÄÚ´æ³Ø
+    my_mem_init(SRAMIN);		    //初始化内部内存池
+	my_mem_init(SRAMEX);		    //初始化外部内存池
+	my_mem_init(SRAMDTCM);		    //初始化DTCM内存池
 
 	if (SD_Init())
 	{

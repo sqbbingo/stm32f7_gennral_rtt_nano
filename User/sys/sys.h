@@ -4,7 +4,7 @@
 #include "stm32f7xx.h"
 #include "core_cm7.h"
 #include "stm32f7xx_hal.h"
-#include "./usart/bsp_debug_usart.h"
+#include "usart.h"
 
 //0,不支持os
 //1,支持os

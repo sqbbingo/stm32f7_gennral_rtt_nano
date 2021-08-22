@@ -27,7 +27,7 @@
 #include "packet.h"
 #include "log.h"
 #include "stm32f7xx.h"
-#include "./usart/bsp_debug_usart.h"
+#include "usart.h"
 
 #define BUF_SIZE        (256)
 #define PACKET_LENGTH   (23)

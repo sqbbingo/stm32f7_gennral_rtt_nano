@@ -1,5 +1,5 @@
-#ifndef __DEBUG_USART_H
-#define	__DEBUG_USART_H
+#ifndef __USART_H
+#define	__USART_H
 
 #include "stm32f7xx.h"
 #include <stdio.h>
