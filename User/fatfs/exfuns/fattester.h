@@ -4,8 +4,6 @@
 #include "ff.h"
 
 u8 mf_mount(u8* path, u8 mt);
-u8 mf_open(u8*path, u8 mode);
-u8 mf_close(void);
 u8 mf_read(u16 len);
 u8 mf_write(u8*dat, u16 len);
 u8 mf_opendir(u8* path);

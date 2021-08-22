@@ -1,8 +1,10 @@
+#include "rtthread.h"
 #include "fattester.h"
 #include "sdmmc_sdcard.h"
 #include "exfuns.h"
 #include "malloc.h"
 #include "ff.h"
+#include "stdlib.h"
 #include "string.h"
 
 
@@ -18,19 +20,30 @@ u8 mf_mount(u8* path, u8 mt)
 //path:路径+文件名
 //mode:打开模式
 //返回值:执行结果
-u8 mf_open(u8*path, u8 mode)
+void mf_open(int argc,char **argv)
 {
 	u8 res;
-	res = f_open(file, (const TCHAR*)path, mode); //打开文件夹
-	return res;
+	
+	if(argc == 3)
+		res = f_open(file, (const TCHAR*)argv[1],(BYTE)atoi(argv[2]) ); //打开文件夹
+	else if(2 == argc)
+		res = f_open(file, (const TCHAR*)argv[1],FA_READ); //打开文件夹
+
+	printf("open res = %d \r\n",res);
 }
+MSH_CMD_EXPORT(mf_open,open file);
+
+
 //关闭文件
 //返回值:执行结果
-u8 mf_close(void)
+void mf_close(void)
 {
 	f_close(file);
-	return 0;
 }
+
+MSH_CMD_EXPORT(mf_close,close file);
+
+
 //读出数据
 //len:读出的长度
 //返回值:执行结果
@@ -147,9 +160,27 @@ u8 mf_scan_files(u8 * path)
 			printf("%s/", path);//打印路径
 			printf("%s\r\n", fileinfo.fname); //打印文件名
 		}
+		printf("\r\n");
 	}
 	return res;
 }
+
+static void ls(int argc,char **argv)
+{
+	if(argc < 2)
+	{
+		mf_scan_files("0:");
+		mf_scan_files("1:");
+		mf_scan_files("2:");
+	}
+	else
+	{
+		mf_scan_files((u8*)argv[1]);
+	}
+}
+MSH_CMD_EXPORT(ls, scan file);
+
+
 //显示剩余容量
 //drv:盘符
 //返回值:剩余容量(字节)
