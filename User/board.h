@@ -17,6 +17,7 @@
 #include "adc.h"
 #include "myiic.h"
 #include "pcf8574.h"
+#include "sccb.h"
 #include "mpu.h"
 #include "mpu9250.h"
 #include "inv_mpu.h"

@@ -953,6 +953,11 @@
               <FilePath>..\..\User\bsp\pcf8574\pcf8574.c</FilePath>
             </File>
             <File>
+              <FileName>sccb.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\User\bsp\i2c\sccb.c</FilePath>
+            </File>
+            <File>
               <FileName>mpu9250.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\User\bsp\mpu9250\mpu9250.c</FilePath>

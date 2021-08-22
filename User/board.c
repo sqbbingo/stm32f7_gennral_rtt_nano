@@ -144,6 +144,7 @@ void rt_hw_board_init(void)
 	adc_init();
 	IIC_Init();
 	PCF8574_Init();
+	SCCB_Init();
 	MPU9250_Init();
 	W25QXX_Init();
 //	NAND_Init();
