@@ -428,15 +428,17 @@ sys_timeouts_mbox_fetch(sys_mbox_t *mbox, void **msg)
   void *arg;
 
  again:
-  if (!next_timeout) {
+  if (!next_timeout) 
+  {
     time_needed = sys_arch_mbox_fetch(mbox, msg, 0);
-  } else {
+  } 
+  else 
+  {
     if (next_timeout->time > 0) {
       time_needed = sys_arch_mbox_fetch(mbox, msg, next_timeout->time);
     } else {
       time_needed = SYS_ARCH_TIMEOUT;
     }
-
     if (time_needed == SYS_ARCH_TIMEOUT) {
       /* If time == SYS_ARCH_TIMEOUT, a timeout occured before a message
          could be fetched. We should now call the timeout handler and

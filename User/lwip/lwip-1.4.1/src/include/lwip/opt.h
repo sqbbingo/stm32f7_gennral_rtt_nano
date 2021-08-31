@@ -1238,7 +1238,7 @@
  * TCPIP_THREAD_NAME: The name assigned to the main tcpip thread.
  */
 #ifndef TCPIP_THREAD_NAME
-#define TCPIP_THREAD_NAME              "tcpip_thread"
+#define TCPIP_THREAD_NAME              "tcpip"
 #endif
 
 /**

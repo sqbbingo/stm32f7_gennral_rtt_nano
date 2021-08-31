@@ -1,207 +1,216 @@
-#include "netif/ethernetif.h" 
-#include "lan8720.h"  
-#include "lwip_comm.h" 
-#include "netif/etharp.h"  
-#include "string.h"  
+#include "netif/ethernetif.h"
+#include "lan8720.h"
+#include "lwip_comm.h"
+#include "netif/etharp.h"
+#include "string.h"
 
-//ÓÉethernetif_init()µ÷ÓÃÓÃÓÚ³õÊ¼»¯Ó²  ¼ş
-//netif:Íø¿¨½á¹¹ÌåÖ¸Õë 
-//·µ»ØÖµ:ERR_OK,Õı³£
-//       ÆäËû,Ê§°Ü
+struct pbuf *tmp_p = NULL;
+
+//ç”±ethernetif_init()è°ƒç”¨ç”¨äºåˆå§‹åŒ–ç¡¬  ä»¶
+//netif:ç½‘å¡ç»“æ„ä½“æŒ‡é’ˆ
+//è¿”å›å€¼:ERR_OK,æ­£å¸¸
+//       å…¶ä»–,å¤±è´¥
 static err_t low_level_init(struct netif *netif)
 {
-	netif->hwaddr_len = ETHARP_HWADDR_LEN; //ÉèÖÃMACµØÖ·³¤¶È,Îª6¸ö×Ö½Ú
-	//³õÊ¼»¯MACµØÖ·,ÉèÖÃÊ²Ã´µØÖ·ÓÉÓÃ»§×Ô¼ºÉèÖÃ,µ«ÊÇ²»ÄÜÓëÍøÂçÖĞÆäËûÉè±¸MACµØÖ·ÖØ¸´
-	netif->hwaddr[0]=lwipdev.mac[0]; 
-	netif->hwaddr[1]=lwipdev.mac[1]; 
-	netif->hwaddr[2]=lwipdev.mac[2];
-	netif->hwaddr[3]=lwipdev.mac[3];   
-	netif->hwaddr[4]=lwipdev.mac[4];
-	netif->hwaddr[5]=lwipdev.mac[5];
-	netif->mtu=1500; //×î´óÔÊĞí´«Êäµ¥Ôª,ÔÊĞí¸ÃÍø¿¨¹ã²¥ºÍARP¹¦ÄÜ
+	netif->hwaddr_len = ETHARP_HWADDR_LEN; //è®¾ç½®MACåœ°å€é•¿åº¦,ä¸º6ä¸ªå­—èŠ‚
+	//åˆå§‹åŒ–MACåœ°å€,è®¾ç½®ä»€ä¹ˆåœ°å€ç”±ç”¨æˆ·è‡ªå·±è®¾ç½®,ä½†æ˜¯ä¸èƒ½ä¸ç½‘ç»œä¸­å…¶ä»–è®¾å¤‡MACåœ°å€é‡å¤
+	netif->hwaddr[0] = lwipdev.mac[0];
+	netif->hwaddr[1] = lwipdev.mac[1];
+	netif->hwaddr[2] = lwipdev.mac[2];
+	netif->hwaddr[3] = lwipdev.mac[3];
+	netif->hwaddr[4] = lwipdev.mac[4];
+	netif->hwaddr[5] = lwipdev.mac[5];
+	netif->mtu = 1500; //æœ€å¤§å…è®¸ä¼ è¾“å•å…ƒ,å…è®¸è¯¥ç½‘å¡å¹¿æ’­å’ŒARPåŠŸèƒ½
 
-	netif->flags = NETIF_FLAG_BROADCAST|NETIF_FLAG_ETHARP|NETIF_FLAG_LINK_UP;
-	
-    HAL_ETH_DMATxDescListInit(&ETH_Handler,DMATxDscrTab,Tx_Buff,ETH_TXBUFNB);//³õÊ¼»¯·¢ËÍÃèÊö·û
-    HAL_ETH_DMARxDescListInit(&ETH_Handler,DMARxDscrTab,Rx_Buff,ETH_RXBUFNB);//³õÊ¼»¯½ÓÊÕÃèÊö·û
-	HAL_ETH_Start(&ETH_Handler); //¿ªÆôMACºÍDMA				
+	netif->flags = NETIF_FLAG_BROADCAST | NETIF_FLAG_ETHARP | NETIF_FLAG_LINK_UP;
+
+	HAL_ETH_DMATxDescListInit(&ETH_Handler, DMATxDscrTab, Tx_Buff, ETH_TXBUFNB); //åˆå§‹åŒ–å‘é€æè¿°ç¬¦
+	HAL_ETH_DMARxDescListInit(&ETH_Handler, DMARxDscrTab, Rx_Buff, ETH_RXBUFNB); //åˆå§‹åŒ–æ¥æ”¶æè¿°ç¬¦
+	HAL_ETH_Start(&ETH_Handler); //å¼€å¯MACå’ŒDMA
 	return ERR_OK;
-} 
-//ÓÃÓÚ·¢ËÍÊı¾İ°üµÄ×îµ×²ãº¯Êı(lwipÍ¨¹ınetif->linkoutputÖ¸Ïò¸Ãº¯Êı)
-//netif:Íø¿¨½á¹¹ÌåÖ¸Õë
-//p:pbufÊı¾İ½á¹¹ÌåÖ¸Õë
-//·µ»ØÖµ:ERR_OK,·¢ËÍÕı³£
-//       ERR_MEM,·¢ËÍÊ§°Ü
+}
+//ç”¨äºå‘é€æ•°æ®åŒ…çš„æœ€åº•å±‚å‡½æ•°(lwipé€šè¿‡netif->linkoutputæŒ‡å‘è¯¥å‡½æ•°)
+//netif:ç½‘å¡ç»“æ„ä½“æŒ‡é’ˆ
+//p:pbufæ•°æ®ç»“æ„ä½“æŒ‡é’ˆ
+//è¿”å›å€¼:ERR_OK,å‘é€æ­£å¸¸
+//       ERR_MEM,å‘é€å¤±è´¥
 static err_t low_level_output(struct netif *netif, struct pbuf *p)
 {
-    err_t errval;
-    struct pbuf *q;
-    uint8_t *buffer=(uint8_t *)(ETH_Handler.TxDesc->Buffer1Addr);
-    __IO ETH_DMADescTypeDef *DmaTxDesc;
-    uint32_t framelength = 0;
-    uint32_t bufferoffset = 0;
-    uint32_t byteslefttocopy = 0;
-    uint32_t payloadoffset = 0;
+	err_t errval;
+	struct pbuf *q;
+	uint8_t *buffer = (uint8_t *)(ETH_Handler.TxDesc->Buffer1Addr);
+	__IO ETH_DMADescTypeDef *DmaTxDesc;
+	uint32_t framelength = 0;
+	uint32_t bufferoffset = 0;
+	uint32_t byteslefttocopy = 0;
+	uint32_t payloadoffset = 0;
+	rt_ubase_t level;
 
-    DmaTxDesc = ETH_Handler.TxDesc;
-    bufferoffset = 0;
+	DmaTxDesc = ETH_Handler.TxDesc;
+	bufferoffset = 0;
 
-    INTX_DISABLE();
-    //´ÓpbufÖĞ¿½±´Òª·¢ËÍµÄÊı¾İ
-    for(q=p;q!=NULL;q=q->next)
-    {
-        //ÅĞ¶Ï´Ë·¢ËÍÃèÊö·ûÊÇ·ñÓĞĞ§£¬¼´ÅĞ¶Ï´Ë·¢ËÍÃèÊö·ûÊÇ·ñ¹éÒÔÌ«ÍøDMAËùÓĞ
-        if((DmaTxDesc->Status&ETH_DMATXDESC_OWN)!=(uint32_t)RESET)
-        {
-            errval=ERR_USE;
-            goto error;             //·¢ËÍÃèÊö·ûÎŞĞ§£¬²»¿ÉÓÃ
-        }
-        byteslefttocopy=q->len;     //Òª·¢ËÍµÄÊı¾İ³¤¶È
-        payloadoffset=0;
-   
-        //½«pbufÖĞÒª·¢ËÍµÄÊı¾İĞ´Èëµ½ÒÔÌ«Íø·¢ËÍÃèÊö·ûÖĞ£¬ÓĞÊ±ºòÎÒÃÇÒª·¢ËÍµÄÊı¾İ¿ÉÄÜ´óÓÚÒ»¸öÒÔÌ«Íø
-        //ÃèÊö·ûµÄTx Buffer£¬Òò´ËÎÒÃÇĞèÒª·Ö¶à´Î½«Êı¾İ¿½±´µ½¶à¸ö·¢ËÍÃèÊö·ûÖĞ
-        while((byteslefttocopy+bufferoffset)>ETH_TX_BUF_SIZE )
-        {
-            //½«Êı¾İ¿½±´µ½ÒÔÌ«Íø·¢ËÍÃèÊö·ûµÄTx BufferÖĞ
-            memcpy((uint8_t*)((uint8_t*)buffer+bufferoffset),(uint8_t*)((uint8_t*)q->payload+payloadoffset),(ETH_TX_BUF_SIZE-bufferoffset));
-            //DmaTxDscÖ¸ÏòÏÂÒ»¸ö·¢ËÍÃèÊö·û
-            DmaTxDesc=(ETH_DMADescTypeDef *)(DmaTxDesc->Buffer2NextDescAddr);
-            //¼ì²éĞÂµÄ·¢ËÍÃèÊö·ûÊÇ·ñÓĞĞ§
-            if((DmaTxDesc->Status&ETH_DMATXDESC_OWN)!=(uint32_t)RESET)
-            {
-                errval = ERR_USE;
-                goto error;     //·¢ËÍÃèÊö·ûÎŞĞ§£¬²»¿ÉÓÃ
-            }
-            buffer=(uint8_t *)(DmaTxDesc->Buffer1Addr);   //¸üĞÂbufferµØÖ·£¬Ö¸ÏòĞÂµÄ·¢ËÍÃèÊö·ûµÄTx Buffer
-            byteslefttocopy=byteslefttocopy-(ETH_TX_BUF_SIZE-bufferoffset);
-            payloadoffset=payloadoffset+(ETH_TX_BUF_SIZE-bufferoffset);
-            framelength=framelength+(ETH_TX_BUF_SIZE-bufferoffset);
-            bufferoffset=0;
-        }
-        //¿½±´Ê£ÓàµÄÊı¾İ
-        memcpy( (uint8_t*)((uint8_t*)buffer+bufferoffset),(uint8_t*)((uint8_t*)q->payload+payloadoffset),byteslefttocopy );
-        bufferoffset=bufferoffset+byteslefttocopy;
-        framelength=framelength+byteslefttocopy;
-    }
-    //µ±ËùÓĞÒª·¢ËÍµÄÊı¾İ¶¼·Å½ø·¢ËÍÃèÊö·ûµÄTx BufferÒÔºó¾Í¿É·¢ËÍ´ËÖ¡ÁË
-    HAL_ETH_TransmitFrame(&ETH_Handler,framelength);
-    errval = ERR_OK;
-error:    
-    //·¢ËÍ»º³åÇø·¢ÉúÏÂÒç£¬Ò»µ©·¢ËÍ»º³åÇø·¢ÉúÏÂÒçTxDMA»á½øÈë¹ÒÆğ×´Ì¬
-    if((ETH_Handler.Instance->DMASR&ETH_DMASR_TUS)!=(uint32_t)RESET)
-    {
-        //Çå³ıÏÂÒç±êÖ¾
-        ETH_Handler.Instance->DMASR = ETH_DMASR_TUS;
-        //µ±·¢ËÍÖ¡ÖĞ³öÏÖÏÂÒç´íÎóµÄÊ±ºòTxDMA»á¹ÒÆğ£¬ÕâÊ±ºòĞèÒªÏòDMATPDR¼Ä´æÆ÷
-        //Ëæ±ãĞ´ÈëÒ»¸öÖµÀ´½«Æä»½ĞÑ£¬´Ë´¦ÎÒÃÇĞ´0
-        ETH_Handler.Instance->DMATPDR=0;
-    }
-    INTX_ENABLE();
-    return errval;
-}  
-///ÓÃÓÚ½ÓÊÕÊı¾İ°üµÄ×îµ×²ãº¯Êı
-//neitif:Íø¿¨½á¹¹ÌåÖ¸Õë
-//·µ»ØÖµ:pbufÊı¾İ½á¹¹ÌåÖ¸Õë
-static struct pbuf * low_level_input(struct netif *netif)
-{  
-	struct pbuf *p = NULL;
-    struct pbuf *q;
-    uint16_t len;
-    uint8_t *buffer;
-    __IO ETH_DMADescTypeDef *dmarxdesc;
-    uint32_t bufferoffset=0;
-    uint32_t payloadoffset=0;
-    uint32_t byteslefttocopy=0;
-    uint32_t i=0;
-  
-    if(HAL_ETH_GetReceivedFrame(&ETH_Handler)!=HAL_OK)  //ÅĞ¶ÏÊÇ·ñ½ÓÊÕµ½Êı¾İ
-    return NULL;
-    
-    INTX_DISABLE();
-    len=ETH_Handler.RxFrameInfos.length;                //»ñÈ¡½ÓÊÕµ½µÄÒÔÌ«ÍøÖ¡³¤¶È
-    buffer=(uint8_t *)ETH_Handler.RxFrameInfos.buffer;  //»ñÈ¡½ÓÊÕµ½µÄÒÔÌ«ÍøÖ¡µÄÊı¾İbuffer
-  
-    if(len>0) p=pbuf_alloc(PBUF_RAW,len,PBUF_POOL);     //ÉêÇëpbuf
-    if(p!=NULL)                                        //pbufÉêÇë³É¹¦
-    {
-        dmarxdesc=ETH_Handler.RxFrameInfos.FSRxDesc;    //»ñÈ¡½ÓÊÕÃèÊö·ûÁ´±íÖĞµÄµÚÒ»¸öÃèÊö·û
-        bufferoffset = 0;
-        for(q=p;q!=NULL;q=q->next)                      
-        {
-            byteslefttocopy=q->len;                  
-            payloadoffset=0;
-            //½«½ÓÊÕÃèÊö·ûÖĞRx BufferµÄÊı¾İ¿½±´µ½pbufÖĞ
-            while((byteslefttocopy+bufferoffset)>ETH_RX_BUF_SIZE )
-            {
-                //½«Êı¾İ¿½±´µ½pbufÖĞ
-                memcpy((uint8_t*)((uint8_t*)q->payload+payloadoffset),(uint8_t*)((uint8_t*)buffer+bufferoffset),(ETH_RX_BUF_SIZE-bufferoffset));
-                 //dmarxdescÏòÏÂÒ»¸ö½ÓÊÕÃèÊö·û
-                dmarxdesc=(ETH_DMADescTypeDef *)(dmarxdesc->Buffer2NextDescAddr);
-                //¸üĞÂbufferµØÖ·£¬Ö¸ÏòĞÂµÄ½ÓÊÕÃèÊö·ûµÄRx Buffer
-                buffer=(uint8_t *)(dmarxdesc->Buffer1Addr);
- 
-                byteslefttocopy=byteslefttocopy-(ETH_RX_BUF_SIZE-bufferoffset);
-                payloadoffset=payloadoffset+(ETH_RX_BUF_SIZE-bufferoffset);
-                bufferoffset=0;
-            }
-            //¿½±´Ê£ÓàµÄÊı¾İ
-            memcpy((uint8_t*)((uint8_t*)q->payload+payloadoffset),(uint8_t*)((uint8_t*)buffer+bufferoffset),byteslefttocopy);
-            bufferoffset=bufferoffset+byteslefttocopy;
-        }
-    }    
-    //ÊÍ·ÅDMAÃèÊö·û
-    dmarxdesc=ETH_Handler.RxFrameInfos.FSRxDesc;
-    for(i=0;i<ETH_Handler.RxFrameInfos.SegCount; i++)
-    {  
-        dmarxdesc->Status|=ETH_DMARXDESC_OWN;       //±ê¼ÇÃèÊö·û¹éDMAËùÓĞ
-        dmarxdesc=(ETH_DMADescTypeDef *)(dmarxdesc->Buffer2NextDescAddr);
-    }
-    ETH_Handler.RxFrameInfos.SegCount =0;           //Çå³ı¶Î¼ÆÊıÆ÷
-    if((ETH_Handler.Instance->DMASR&ETH_DMASR_RBUS)!=(uint32_t)RESET)  //½ÓÊÕ»º³åÇø²»¿ÉÓÃ
-    {
-        //Çå³ı½ÓÊÕ»º³åÇø²»¿ÉÓÃ±êÖ¾
-        ETH_Handler.Instance->DMASR = ETH_DMASR_RBUS;
-        //µ±½ÓÊÕ»º³åÇø²»¿ÉÓÃµÄÊ±ºòRxDMA»á½øÈ¥¹ÒÆğ×´Ì¬£¬Í¨¹ıÏòDMARPDRĞ´ÈëÈÎÒâÒ»¸öÖµÀ´»½ĞÑRx DMA
-        ETH_Handler.Instance->DMARPDR=0;
-    }
-    INTX_ENABLE();
-    return p;
+	level = rt_hw_interrupt_disable();
+	//ä»pbufä¸­æ‹·è´è¦å‘é€çš„æ•°æ®
+	for (q = p; q != NULL; q = q->next)
+	{
+		//åˆ¤æ–­æ­¤å‘é€æè¿°ç¬¦æ˜¯å¦æœ‰æ•ˆï¼Œå³åˆ¤æ–­æ­¤å‘é€æè¿°ç¬¦æ˜¯å¦å½’ä»¥å¤ªç½‘DMAæ‰€æœ‰
+		if ((DmaTxDesc->Status & ETH_DMATXDESC_OWN) != (uint32_t)RESET)
+		{
+			errval = ERR_USE;
+			goto error;             //å‘é€æè¿°ç¬¦æ— æ•ˆï¼Œä¸å¯ç”¨
+		}
+		byteslefttocopy = q->len;   //è¦å‘é€çš„æ•°æ®é•¿åº¦
+		payloadoffset = 0;
+
+		//å°†pbufä¸­è¦å‘é€çš„æ•°æ®å†™å…¥åˆ°ä»¥å¤ªç½‘å‘é€æè¿°ç¬¦ä¸­ï¼Œæœ‰æ—¶å€™æˆ‘ä»¬è¦å‘é€çš„æ•°æ®å¯èƒ½å¤§äºä¸€ä¸ªä»¥å¤ªç½‘
+		//æè¿°ç¬¦çš„Tx Bufferï¼Œå› æ­¤æˆ‘ä»¬éœ€è¦åˆ†å¤šæ¬¡å°†æ•°æ®æ‹·è´åˆ°å¤šä¸ªå‘é€æè¿°ç¬¦ä¸­
+		while ((byteslefttocopy + bufferoffset) > ETH_TX_BUF_SIZE )
+		{
+			//å°†æ•°æ®æ‹·è´åˆ°ä»¥å¤ªç½‘å‘é€æè¿°ç¬¦çš„Tx Bufferä¸­
+			memcpy((uint8_t*)((uint8_t*)buffer + bufferoffset), (uint8_t*)((uint8_t*)q->payload + payloadoffset), (ETH_TX_BUF_SIZE - bufferoffset));
+			//DmaTxDscæŒ‡å‘ä¸‹ä¸€ä¸ªå‘é€æè¿°ç¬¦
+			DmaTxDesc = (ETH_DMADescTypeDef *)(DmaTxDesc->Buffer2NextDescAddr);
+			//æ£€æŸ¥æ–°çš„å‘é€æè¿°ç¬¦æ˜¯å¦æœ‰æ•ˆ
+			if ((DmaTxDesc->Status & ETH_DMATXDESC_OWN) != (uint32_t)RESET)
+			{
+				errval = ERR_USE;
+				goto error;     //å‘é€æè¿°ç¬¦æ— æ•ˆï¼Œä¸å¯ç”¨
+			}
+			buffer = (uint8_t *)(DmaTxDesc->Buffer1Addr); //æ›´æ–°bufferåœ°å€ï¼ŒæŒ‡å‘æ–°çš„å‘é€æè¿°ç¬¦çš„Tx Buffer
+			byteslefttocopy = byteslefttocopy - (ETH_TX_BUF_SIZE - bufferoffset);
+			payloadoffset = payloadoffset + (ETH_TX_BUF_SIZE - bufferoffset);
+			framelength = framelength + (ETH_TX_BUF_SIZE - bufferoffset);
+			bufferoffset = 0;
+		}
+		//æ‹·è´å‰©ä½™çš„æ•°æ®
+		memcpy( (uint8_t*)((uint8_t*)buffer + bufferoffset), (uint8_t*)((uint8_t*)q->payload + payloadoffset), byteslefttocopy );
+		bufferoffset = bufferoffset + byteslefttocopy;
+		framelength = framelength + byteslefttocopy;
+	}
+	//å½“æ‰€æœ‰è¦å‘é€çš„æ•°æ®éƒ½æ”¾è¿›å‘é€æè¿°ç¬¦çš„Tx Bufferä»¥åå°±å¯å‘é€æ­¤å¸§äº†
+	HAL_ETH_TransmitFrame(&ETH_Handler, framelength);
+	errval = ERR_OK;
+error:
+	//å‘é€ç¼“å†²åŒºå‘ç”Ÿä¸‹æº¢ï¼Œä¸€æ—¦å‘é€ç¼“å†²åŒºå‘ç”Ÿä¸‹æº¢TxDMAä¼šè¿›å…¥æŒ‚èµ·çŠ¶æ€
+	if ((ETH_Handler.Instance->DMASR & ETH_DMASR_TUS) != (uint32_t)RESET)
+	{
+		//æ¸…é™¤ä¸‹æº¢æ ‡å¿—
+		ETH_Handler.Instance->DMASR = ETH_DMASR_TUS;
+		//å½“å‘é€å¸§ä¸­å‡ºç°ä¸‹æº¢é”™è¯¯çš„æ—¶å€™TxDMAä¼šæŒ‚èµ·ï¼Œè¿™æ—¶å€™éœ€è¦å‘DMATPDRå¯„å­˜å™¨
+		//éšä¾¿å†™å…¥ä¸€ä¸ªå€¼æ¥å°†å…¶å”¤é†’ï¼Œæ­¤å¤„æˆ‘ä»¬å†™0
+		ETH_Handler.Instance->DMATPDR = 0;
+	}
+	rt_hw_interrupt_enable(level);
+	return errval;
 }
-//Íø¿¨½ÓÊÕÊı¾İ(lwipÖ±½Óµ÷ÓÃ) 
-//netif:Íø¿¨½á¹¹ÌåÖ¸Õë
-//·µ»ØÖµ:ERR_OK,·¢ËÍÕı³£
-//       ERR_MEM,·¢ËÍÊ§°Ü
+///ç”¨äºæ¥æ”¶æ•°æ®åŒ…çš„æœ€åº•å±‚å‡½æ•°
+//neitif:ç½‘å¡ç»“æ„ä½“æŒ‡é’ˆ
+//è¿”å›å€¼:pbufæ•°æ®ç»“æ„ä½“æŒ‡é’ˆ
+static struct pbuf * low_level_input(struct netif *netif)
+{
+	struct pbuf *p = NULL;
+	struct pbuf *q;
+	uint16_t len;
+	uint8_t *buffer;
+	__IO ETH_DMADescTypeDef *dmarxdesc;
+	uint32_t bufferoffset = 0;
+	uint32_t payloadoffset = 0;
+	uint32_t byteslefttocopy = 0;
+	uint32_t i = 0;
+
+	if (HAL_ETH_GetReceivedFrame(&ETH_Handler) != HAL_OK) //åˆ¤æ–­æ˜¯å¦æ¥æ”¶åˆ°æ•°æ®
+		return NULL;
+
+	rt_interrupt_enter();
+	len = ETH_Handler.RxFrameInfos.length;              //è·å–æ¥æ”¶åˆ°çš„ä»¥å¤ªç½‘å¸§é•¿åº¦
+	buffer = (uint8_t *)ETH_Handler.RxFrameInfos.buffer; //è·å–æ¥æ”¶åˆ°çš„ä»¥å¤ªç½‘å¸§çš„æ•°æ®buffer
+
+	if (len > 0) 
+		p = pbuf_alloc(PBUF_RAW, len, PBUF_POOL); //ç”³è¯·pbuf
+		tmp_p = p;
+	if (p != NULL)                                     //pbufç”³è¯·æˆåŠŸ
+	{
+		dmarxdesc = ETH_Handler.RxFrameInfos.FSRxDesc;  //è·å–æ¥æ”¶æè¿°ç¬¦é“¾è¡¨ä¸­çš„ç¬¬ä¸€ä¸ªæè¿°ç¬¦
+		bufferoffset = 0;
+		for (q = p; q != NULL; q = q->next)
+		{
+			byteslefttocopy = q->len;
+			payloadoffset = 0;
+			//å°†æ¥æ”¶æè¿°ç¬¦ä¸­Rx Bufferçš„æ•°æ®æ‹·è´åˆ°pbufä¸­
+			while ((byteslefttocopy + bufferoffset) > ETH_RX_BUF_SIZE )
+			{
+				//å°†æ•°æ®æ‹·è´åˆ°pbufä¸­
+				memcpy((uint8_t*)((uint8_t*)q->payload + payloadoffset), (uint8_t*)((uint8_t*)buffer + bufferoffset), (ETH_RX_BUF_SIZE - bufferoffset));
+				//dmarxdescå‘ä¸‹ä¸€ä¸ªæ¥æ”¶æè¿°ç¬¦
+				dmarxdesc = (ETH_DMADescTypeDef *)(dmarxdesc->Buffer2NextDescAddr);
+				//æ›´æ–°bufferåœ°å€ï¼ŒæŒ‡å‘æ–°çš„æ¥æ”¶æè¿°ç¬¦çš„Rx Buffer
+				buffer = (uint8_t *)(dmarxdesc->Buffer1Addr);
+
+				byteslefttocopy = byteslefttocopy - (ETH_RX_BUF_SIZE - bufferoffset);
+				payloadoffset = payloadoffset + (ETH_RX_BUF_SIZE - bufferoffset);
+				bufferoffset = 0;
+			}
+			//æ‹·è´å‰©ä½™çš„æ•°æ®
+			memcpy((uint8_t*)((uint8_t*)q->payload + payloadoffset), (uint8_t*)((uint8_t*)buffer + bufferoffset), byteslefttocopy);
+			bufferoffset = bufferoffset + byteslefttocopy;
+		}
+	}
+	else
+	{
+		printf("pbuf_alloc fail \r\n");
+	}
+	//é‡Šæ”¾DMAæè¿°ç¬¦
+	dmarxdesc = ETH_Handler.RxFrameInfos.FSRxDesc;
+	for (i = 0; i < ETH_Handler.RxFrameInfos.SegCount; i++)
+	{
+		dmarxdesc->Status |= ETH_DMARXDESC_OWN;     //æ ‡è®°æè¿°ç¬¦å½’DMAæ‰€æœ‰
+		dmarxdesc = (ETH_DMADescTypeDef *)(dmarxdesc->Buffer2NextDescAddr);
+	}
+	ETH_Handler.RxFrameInfos.SegCount = 0;          //æ¸…é™¤æ®µè®¡æ•°å™¨
+	if ((ETH_Handler.Instance->DMASR & ETH_DMASR_RBUS) != (uint32_t)RESET) //æ¥æ”¶ç¼“å†²åŒºä¸å¯ç”¨
+	{
+		//æ¸…é™¤æ¥æ”¶ç¼“å†²åŒºä¸å¯ç”¨æ ‡å¿—
+		ETH_Handler.Instance->DMASR = ETH_DMASR_RBUS;
+		//å½“æ¥æ”¶ç¼“å†²åŒºä¸å¯ç”¨çš„æ—¶å€™RxDMAä¼šè¿›å»æŒ‚èµ·çŠ¶æ€ï¼Œé€šè¿‡å‘DMARPDRå†™å…¥ä»»æ„ä¸€ä¸ªå€¼æ¥å”¤é†’Rx DMA
+		ETH_Handler.Instance->DMARPDR = 0;
+	}
+	rt_interrupt_leave();
+	return p;
+}
+//ç½‘å¡æ¥æ”¶æ•°æ®(lwipç›´æ¥è°ƒç”¨)
+//netif:ç½‘å¡ç»“æ„ä½“æŒ‡é’ˆ
+//è¿”å›å€¼:ERR_OK,å‘é€æ­£å¸¸
+//       ERR_MEM,å‘é€å¤±è´¥
 err_t ethernetif_input(struct netif *netif)
 {
 	err_t err;
 	struct pbuf *p;
-	p=low_level_input(netif);   //µ÷ÓÃlow_level_inputº¯Êı½ÓÊÕÊı¾İ
-	if(p==NULL) return ERR_MEM;
-	err=netif->input(p, netif); //µ÷ÓÃnetif½á¹¹ÌåÖĞµÄinput×Ö¶Î(Ò»¸öº¯Êı)À´´¦ÀíÊı¾İ°ü
-	if(err!=ERR_OK)
+	p = low_level_input(netif); //è°ƒç”¨low_level_inputå‡½æ•°æ¥æ”¶æ•°æ®
+	if (p == NULL) return ERR_MEM;
+	err = netif->input(p, netif); //è°ƒç”¨netifç»“æ„ä½“ä¸­çš„inputå­—æ®µ(ä¸€ä¸ªå‡½æ•°)æ¥å¤„ç†æ•°æ®åŒ…
+	if (err != ERR_OK)
 	{
-		LWIP_DEBUGF(NETIF_DEBUG,("ethernetif_input: IP input error\n"));
+		LWIP_DEBUGF(NETIF_DEBUG, ("ethernetif_input: IP input error\n"));
 		pbuf_free(p);
 		p = NULL;
-	} 
+	}
 	return err;
-} 
-//Ê¹ÓÃlow_level_init()º¯ÊıÀ´³õÊ¼»¯ÍøÂç
-//netif:Íø¿¨½á¹¹ÌåÖ¸Õë
-//·µ»ØÖµ:ERR_OK,Õı³£
-//       ÆäËû,Ê§°Ü
+}
+//ä½¿ç”¨low_level_init()å‡½æ•°æ¥åˆå§‹åŒ–ç½‘ç»œ
+//netif:ç½‘å¡ç»“æ„ä½“æŒ‡é’ˆ
+//è¿”å›å€¼:ERR_OK,æ­£å¸¸
+//       å…¶ä»–,å¤±è´¥
 err_t ethernetif_init(struct netif *netif)
 {
-	LWIP_ASSERT("netif!=NULL",(netif!=NULL));
+	LWIP_ASSERT("netif!=NULL", (netif != NULL));
 #if LWIP_NETIF_HOSTNAME			//LWIP_NETIF_HOSTNAME 
-	netif->hostname="lwip";  	//³õÊ¼»¯Ãû³Æ
-#endif 
-	netif->name[0]=IFNAME0; 	//³õÊ¼»¯±äÁ¿netifµÄname×Ö¶Î
-	netif->name[1]=IFNAME1; 	//ÔÚÎÄ¼şÍâ¶¨ÒåÕâÀï²»ÓÃ¹ØĞÄ¾ßÌåÖµ
-	netif->output=etharp_output;//IP²ã·¢ËÍÊı¾İ°üº¯Êı
-	netif->linkoutput=low_level_output;//ARPÄ£¿é·¢ËÍÊı¾İ°üº¯Êı
-	low_level_init(netif); 		//µ×²ãÓ²¼ş³õÊ¼»¯º¯Êı
+	netif->hostname = "lwip";  	//åˆå§‹åŒ–åç§°
+#endif
+	netif->name[0] = IFNAME0; 	//åˆå§‹åŒ–å˜é‡netifçš„nameå­—æ®µ
+	netif->name[1] = IFNAME1; 	//åœ¨æ–‡ä»¶å¤–å®šä¹‰è¿™é‡Œä¸ç”¨å…³å¿ƒå…·ä½“å€¼
+	netif->output = etharp_output; //IPå±‚å‘é€æ•°æ®åŒ…å‡½æ•°
+	netif->linkoutput = low_level_output; //ARPæ¨¡å—å‘é€æ•°æ®åŒ…å‡½æ•°
+	low_level_init(netif); 		//åº•å±‚ç¡¬ä»¶åˆå§‹åŒ–å‡½æ•°
 	return ERR_OK;
 }
 

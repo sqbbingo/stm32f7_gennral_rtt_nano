@@ -6,7 +6,8 @@
 
 #include "cpu.h"
 #include "stdio.h"
-#include "includes.h"  //使用UCOS 要添加此头文件！
+#include "rtthread.h"
+#include "rthw.h"
 
 //定义与平台无关的数据类型
 typedef unsigned   char    u8_t;  	//无符号8位整数
@@ -31,6 +32,13 @@ typedef int sys_prot_t;				//临界保护型数据
 #define SYS_ARCH_PROTECT(lev)		lev = OS_CPU_SR_Save() 	//UCOS II中进入临界区,关中断
 #define SYS_ARCH_UNPROTECT(lev)		OS_CPU_SR_Restore(lev)	//UCOS II中退出A临界区，开中断 
 #endif
+
+#ifdef RT_VERSION 
+#define SYS_ARCH_DECL_PROTECT(lev)	rt_base_t lev
+#define SYS_ARCH_PROTECT(lev)		lev = rt_hw_interrupt_disable() 	//rtthread中进入临界区,关中断
+#define SYS_ARCH_UNPROTECT(lev)		rt_hw_interrupt_enable(lev)	//rtthread中退出A临界区，开中断 
+#endif
+
 
 //根据不同的编译器定义一些符号
 #if defined (__ICCARM__)

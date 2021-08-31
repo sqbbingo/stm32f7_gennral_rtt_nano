@@ -834,7 +834,7 @@ long list_timer(void)
     }
     while (next != (rt_list_t*)RT_NULL);
 
-    rt_kprintf("current tick:0x%08x %dms\r\n", rt_tick_get(),rt_tick_get() * (1000 / RT_TICK_PER_SECOND));
+    rt_kprintf("current tick:0x%08x %dms\r\n", rt_tick_get(),rt_tick_get_millisecond());
 
     return 0;
 }

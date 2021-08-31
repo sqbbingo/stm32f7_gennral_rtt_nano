@@ -14,7 +14,13 @@
 #include "delay.h"
 #include "usart.h"
 #include "pcf8574.h"
+#include "rtthread.h"
+
 #include <stdio.h>
+
+#if LWIP_DHCP
+static rt_thread_t dhcp_thread = RT_NULL;
+#endif
 
 __lwip_dev lwipdev;						//lwip控制结构体
 struct netif lwip_netif;				//定义一个全局的网络接口
@@ -27,7 +33,7 @@ extern u8_t *ram_heap;					//在mem.c里面定义.
 //lwip两个任务定义(内核任务和DHCP任务)
 
 //lwip内核任务堆栈(优先级和堆栈大小在lwipopts.h定义了)
-OS_STK * TCPIP_THREAD_TASK_STK;
+char * TCPIP_THREAD_TASK_STK;
 
 //lwip DHCP任务
 //设置任务优先级
@@ -35,7 +41,7 @@ OS_STK * TCPIP_THREAD_TASK_STK;
 //设置任务堆栈大小
 #define LWIP_DHCP_STK_SIZE  		    128
 //任务堆栈，采用内存管理的方式控制申请
-OS_STK * LWIP_DHCP_TASK_STK;
+unsigned int * LWIP_DHCP_TASK_STK;
 //任务函数
 void lwip_dhcp_task(void *pdata);
 
@@ -60,6 +66,7 @@ u8 lwip_comm_mem_malloc(void)
 	LWIP_DHCP_TASK_STK = mymalloc(SRAMIN, LWIP_DHCP_STK_SIZE * 4);		//给dhcp任务堆栈申请内存空间
 	if (!memp_memory || !ram_heap || !TCPIP_THREAD_TASK_STK || !LWIP_DHCP_TASK_STK) //有申请失败的
 	{
+		printf("%s fail \r\n",__FUNCTION__);
 		lwip_comm_mem_free();
 		return 1;
 	}
@@ -82,8 +89,8 @@ void lwip_comm_default_ip_set(__lwip_dev *lwipx)
 	//默认远端IP为:192.168.1.100
 	lwipx->remoteip[0] = 192;
 	lwipx->remoteip[1] = 168;
-	lwipx->remoteip[2] = 1;
-	lwipx->remoteip[3] = 104;
+	lwipx->remoteip[2] = 75;
+	lwipx->remoteip[3] = 100;
 	//MAC地址设置(高三字节固定为:2.0.0,低三字节用STM32唯一ID)
 	lwipx->mac[0] = 2; //高三字节(IEEE称之为组织唯一ID,OUI)地址固定为:2.0.0
 	lwipx->mac[1] = 0;
@@ -91,20 +98,20 @@ void lwip_comm_default_ip_set(__lwip_dev *lwipx)
 	lwipx->mac[3] = (sn0 >> 16) & 0XFF; //低三字节用STM32的唯一ID
 	lwipx->mac[4] = (sn0 >> 8) & 0XFFF;
 	lwipx->mac[5] = sn0 & 0XFF;
-	//默认本地IP为:192.168.1.30
+	//默认本地IP为:192.168.75.30
 	lwipx->ip[0] = 192;
 	lwipx->ip[1] = 168;
-	lwipx->ip[2] = 1;
-	lwipx->ip[3] = 30;
+	lwipx->ip[2] = 75;
+	lwipx->ip[3] = 101;
 	//默认子网掩码:255.255.255.0
 	lwipx->netmask[0] = 255;
 	lwipx->netmask[1] = 255;
 	lwipx->netmask[2] = 255;
 	lwipx->netmask[3] = 0;
-	//默认网关:192.168.1.1
+	//默认网关:192.168.75.254
 	lwipx->gateway[0] = 192;
 	lwipx->gateway[1] = 168;
-	lwipx->gateway[2] = 1;
+	lwipx->gateway[2] = 75;
 	lwipx->gateway[3] = 1;
 	lwipx->dhcpstatus = 0; //没有DHCP
 }
@@ -122,13 +129,20 @@ u8 lwip_comm_init(void)
 	struct ip_addr netmask; 			//子网掩码
 	struct ip_addr gw;      			//默认网关
 
-	if (ETH_Mem_Malloc())return 1;		//内存申请失败
-	if (lwip_comm_mem_malloc())return 2;	//内存申请失败
+	if (ETH_Mem_Malloc())
+		return 1;		//内存申请失败
+	if (lwip_comm_mem_malloc())
+		return 2;	//内存申请失败
 	lwip_comm_default_ip_set(&lwipdev);	//设置默认IP等信息
 	while (LAN8720_Init())		       //初始化LAN8720,如果失败的话就重试5次
 	{
 		retry++;
-		if (retry > 5) {retry = 0; return 3;} //LAN8720初始化失败
+		if (retry > 5) //LAN8720初始化失败
+		{
+			retry = 0; 
+			printf("%s lan8720 init fail \r\n",__FUNCTION__);
+			return 3;
+		} 
 	}
 	tcpip_init(NULL, NULL);				//初始化tcp ip内核,该函数里面会创建tcpip_thread内核任务
 
@@ -146,9 +160,14 @@ u8 lwip_comm_init(void)
 	printf("默认网关..........................%d.%d.%d.%d\r\n", lwipdev.gateway[0], lwipdev.gateway[1], lwipdev.gateway[2], lwipdev.gateway[3]);
 #endif
 	Netif_Init_Flag = netif_add(&lwip_netif, &ipaddr, &netmask, &gw, NULL, &ethernetif_init, &tcpip_input); //向网卡列表中添加一个网口
-	if (Netif_Init_Flag == NULL)return 4; //网卡添加失败
+	if (Netif_Init_Flag == NULL)
+	{
+		printf("net if init fail \r\n");
+		return 4; //网卡添加失败
+	}
 	else//网口添加成功后,设置netif为默认值,并且打开netif网口
 	{
+		printf("net if init successful \r\n");
 		netif_set_default(&lwip_netif); //设置netif为默认网口
 		netif_set_up(&lwip_netif);		//打开netif网口
 	}
@@ -159,16 +178,19 @@ u8 lwip_comm_init(void)
 //创建DHCP任务
 void lwip_comm_dhcp_creat(void)
 {
-	OS_CPU_SR cpu_sr;
-	OS_ENTER_CRITICAL();  //进入临界区
-	OSTaskCreate(lwip_dhcp_task, (void*)0, (OS_STK*)&LWIP_DHCP_TASK_STK[LWIP_DHCP_STK_SIZE - 1], LWIP_DHCP_TASK_PRIO); //创建DHCP任务
-	OS_EXIT_CRITICAL();  //退出临界区
+	dhcp_thread = rt_thread_create("dhcp_thread", lwip_dhcp_task, RT_NULL, LWIP_DHCP_STK_SIZE, LWIP_DHCP_TASK_PRIO, 10);//创建DHCP任务
+	/* 启动线程，开启调度 */
+	if (dhcp_thread != RT_NULL)
+		rt_thread_startup(dhcp_thread);
+	else
+		rt_kprintf("dhcp thread create fail \r\n");
+
 }
 //删除DHCP任务
 void lwip_comm_dhcp_delete(void)
 {
 	dhcp_stop(&lwip_netif); 		//关闭DHCP
-	OSTaskDel(LWIP_DHCP_TASK_PRIO);	//删除DHCP任务
+	rt_thread_delete(dhcp_thread);	//删除DHCP任务
 }
 //DHCP处理任务
 void lwip_dhcp_task(void *pdata)

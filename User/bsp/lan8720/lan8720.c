@@ -3,7 +3,7 @@
 #include "lwip_comm.h"
 #include "delay.h"
 #include "malloc.h"
-#include "includes.h"
+#include <stm32f7xx.h>	
 
 ETH_HandleTypeDef ETH_Handler;      //以太网句柄
 
@@ -46,7 +46,11 @@ u8 LAN8720_Init(void)
 	{
 		return 0;   //成功
 	}
-	else return 1;  //失败
+	else 
+	{
+		printf("%s fail \r\n",__FUNCTION__);
+		return 1;  //失败
+	}
 }
 
 //ETH底层驱动，时钟使能，引脚配置
@@ -131,7 +135,7 @@ extern void lwip_pkt_handle(void);		//在lwip_comm.c里面定义
 //中断服务函数
 void ETH_IRQHandler(void)
 {
-	OSIntEnter();
+	rt_interrupt_enter();
 	while (ETH_GetRxPktSize(ETH_Handler.RxDesc))
 	{
 		lwip_pkt_handle();//处理以太网数据，即将数据提交给LWIP
@@ -139,7 +143,7 @@ void ETH_IRQHandler(void)
 	//清除中断标志位
 	__HAL_ETH_DMA_CLEAR_IT(&ETH_Handler, ETH_DMA_IT_R);
 	__HAL_ETH_DMA_CLEAR_IT(&ETH_Handler, ETH_DMA_IT_NIS);
-	OSIntExit();
+	rt_interrupt_leave();
 }
 
 //获取接收到的帧长度
@@ -168,6 +172,7 @@ u8 ETH_Mem_Malloc(void)
 	Tx_Buff = mymalloc(SRAMDTCM, ETH_TX_BUF_SIZE * ETH_TXBUFNB);	//申请内存
 	if (!(u32)&DMARxDscrTab || !(u32)&DMATxDscrTab || !(u32)&Rx_Buff || !(u32)&Tx_Buff)
 	{
+		printf("%s fail r\n",__FUNCTION__);
 		ETH_Mem_Free();
 		return 1;	//申请失败
 	}

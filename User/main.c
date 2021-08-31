@@ -13,7 +13,7 @@
 #include "board.h"
 #include "rtthread.h"
 #include "lcd.h"
-//#include "lwip_comm.h"
+#include "lwip_comm.h"
 
 /*
 *************************************************************************
@@ -111,11 +111,11 @@ static void lcd_thread_entry(void* parameter)
 
 static void lwip_thread_entry(void* parameter)
 {
-	while(1) 	    //lwip初始化
+	while(lwip_comm_init()) 	    //lwip初始化
 	{
-		LCD_ShowString(30,110,200,20,16,"Lwip Init failed!"); 	//lwip初始化失败
+		LCD_ShowString(10,230,200,20,16,"Lwip Init failed!"); 	//lwip初始化失败
 		rt_thread_mdelay(500);
-		LCD_Fill(30,110,230,150,WHITE);
+		LCD_Fill(10,230,230,150,WHITE);
 		rt_thread_mdelay(500);
 	}
 
@@ -169,15 +169,44 @@ int main(void)
 		rt_kprintf("lcd thread create fail! \r\n");
 		return -1;
 	}
-
+#if 0
 	lwip_thread = rt_thread_create("lwip", 
 								   lwip_thread_entry,
 								   RT_NULL,
 								   2 * 1024,
-								   2,
+								   3,
 								   30);
-
+	/* 启动线程，开启调度 */
+	if (lwip_thread != RT_NULL)
+		rt_thread_startup(lwip_thread);
+	else
+	{
+		rt_kprintf("lwip thread create fail! \r\n");
+		return -1;
+	}
+#endif
 }
 
+int lwip_sample(void)
+{
+	lwip_thread = rt_thread_create("lwip", 
+								   lwip_thread_entry,
+								   RT_NULL,
+								   2 * 1024,
+								   3,
+								   30);
+	/* 启动线程，开启调度 */
+	if (lwip_thread != RT_NULL)
+		rt_thread_startup(lwip_thread);
+	else
+	{
+		rt_kprintf("lwip thread create fail! \r\n");
+		return -1;
+	}
+	
+	return 0;
+}
+
+MSH_CMD_EXPORT(lwip_sample, lwip sample);
 
 /********************************END OF FILE****************************/

@@ -49,6 +49,18 @@ rt_tick_t rt_tick_get(void)
 }
 
 /**
+ * This function will return current time for  from millisecond operating system startup
+ *
+ * @return current time(ms)
+ */
+rt_tick_t rt_tick_get_millisecond(void)
+{
+    /* return the global tick */
+    return rt_tick * (1000 / RT_TICK_PER_SECOND);
+}
+
+
+/**
  * This function will set current tick
  */
 void rt_tick_set(rt_tick_t tick)
@@ -115,6 +127,22 @@ rt_tick_t rt_tick_from_millisecond(rt_int32_t ms)
     /* return the calculated tick */
     return tick;
 }
+
+/**
+ * This function will calculate the tick to millisecond.
+ *
+ * @param tick the specified millisecond
+ *           - Negative Number wait forever
+ *           - Zero not wait
+ *           - Max 0x7fffffff
+ *
+ * @return the calculated tick
+ */
+rt_int32_t rt_tick_to_millisecond(rt_tick_t tick)
+{
+    return 1000 / RT_TICK_PER_SECOND * tick;
+}
+
 
 /**@}*/
 

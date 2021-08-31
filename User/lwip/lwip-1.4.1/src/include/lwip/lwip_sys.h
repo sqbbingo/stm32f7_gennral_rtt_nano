@@ -265,7 +265,7 @@ u32_t sys_now(void);
  * which should be implemented in sys_arch.c. If a particular port needs a
  * different implementation, then this macro may be defined in sys_arch.h
  */
-#define SYS_ARCH_PROTECT(lev) lev = sys_arch_protect()
+#define SYS_ARCH_PROTECT(lev) lev = rt_hw_interrupt_disable()
 /** SYS_ARCH_UNPROTECT
  * Perform a "fast" set of the protection level to "lev". This could be
  * implemented by setting the interrupt level to "lev" within the MACRO or by
@@ -274,9 +274,9 @@ u32_t sys_now(void);
  * sys_arch.c. If a particular port needs a different implementation, then
  * this macro may be defined in sys_arch.h
  */
-#define SYS_ARCH_UNPROTECT(lev) sys_arch_unprotect(lev)
-sys_prot_t sys_arch_protect(void);
-void sys_arch_unprotect(sys_prot_t pval);
+#define SYS_ARCH_UNPROTECT(lev) rt_hw_interrupt_enable(lev)
+sys_prot_t rt_hw_interrupt_disable(void);
+void rt_hw_interrupt_enable(sys_prot_t pval);
 
 #else
 
