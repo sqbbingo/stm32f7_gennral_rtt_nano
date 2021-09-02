@@ -33,6 +33,7 @@
 #include <rthw.h>
 #include <rtthread.h>
 #include <finsh_config.h>
+#include"cpuusage.h"
 
 #ifdef RT_USING_FINSH
 
@@ -243,6 +244,13 @@ long list_thread(void)
         }
     }
     while (next != (rt_list_t*)RT_NULL);
+    
+#ifdef RT_USING_IDLE_HOOK
+    rt_uint8_t major,minor;
+
+    cpu_usage_get(&major,&minor);
+    rt_kprintf("CPU usage = %d.%d%\r\n",major,minor);
+#endif
 
     return 0;
 }

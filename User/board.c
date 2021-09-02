@@ -13,6 +13,7 @@
 #include "board.h"
 #include "sdram.h"
 #include "lcd.h"
+#include"cpuusage.h"
 
 #if defined(RT_USING_USER_MAIN) && defined(RT_USING_HEAP)
 /*
@@ -135,6 +136,7 @@ void rt_hw_board_init(void)
 #endif
 	HAL_Init();
 	delay_init(216);                //延时函数初始化
+	cpu_usage_init();
 	SDRAM_Init();
 	/* LED 端口初始化 */
 	LED_GPIO_Config();

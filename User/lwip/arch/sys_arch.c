@@ -127,7 +127,7 @@ u32_t sys_arch_mbox_fetch(sys_mbox_t *mbox, void **msg, u32_t timeout)
 	} 
 	else 
 	{
-		rtos_timeout = RT_WAITING_FOREVER;
+		rtos_timeout = (u32_t)RT_WAITING_FOREVER;
 	}
 	
 	timeout = rt_tick_get_millisecond(); //获取系统时间

@@ -52,7 +52,7 @@
 // </c>
 // <c1>using idle hook
 //  <i>using idle hook
-//#define RT_USING_IDLE_HOOK	// 是否 开启空闲线程钩子功能
+#define RT_USING_IDLE_HOOK	// 是否 开启空闲线程钩子功能
 // </c>
 // </h>
 
