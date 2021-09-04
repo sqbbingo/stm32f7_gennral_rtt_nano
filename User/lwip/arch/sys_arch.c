@@ -87,7 +87,7 @@ void sys_mbox_post(sys_mbox_t *mbox, void *msg)
 {
 	if (msg == NULL)
 		msg = (void*)&pvNullPointer; //当msg为空时 msg等于pvNullPointer指向的值
-	while (rt_mq_send(mbox->pQ, msg,4) != RT_EOK); //死循环等待消息发送成功
+	while (rt_mq_send(mbox->pQ, &msg,4) != RT_EOK); //死循环等待消息发送成功
 }
 
 //尝试向一个消息邮箱发送消息
