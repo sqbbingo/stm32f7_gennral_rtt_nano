@@ -336,9 +336,9 @@
             <v6Rtti>0</v6Rtti>
             <VariousControls>
               <MiscControls>--diag_suppress=550 --diag_suppress=870</MiscControls>
-              <Define>USE_HAL_DRIVER,STM32F767xx,MPL_LOG_NDEBUG=1,EMPL,MPU9250,EMPL_TARGET_STM32F4</Define>
+              <Define>USE_HAL_DRIVER,STM32F767xx,MPL_LOG_NDEBUG=1,EMPL,MPU9250,EMPL_TARGET_STM32F4,USE_USB_OTG_FS</Define>
               <Undefine></Undefine>
-              <IncludePath>..\..\Libraries\CMSIS\Include;..\..\Libraries\CMSIS\Device\ST\STM32F7xx\Include;..\..\Libraries\STM32F7xx_HAL_Driver\Inc;..\..\User;..\..\rtthread\3.1.5\include;..\..\User\bsp;..\..\rtthread\3.1.5\components\finsh;..\..\User\common;..\..\User\bsp\gpio;..\..\User\bsp\sdram;..\..\User\bsp\delay;..\..\User\bsp\lcd;..\..\User\bsp\rtc;..\..\User\bsp\adc;..\..\User\bsp\i2c;..\..\User\bsp\pcf8574;..\..\User\sys;..\..\User\bsp\mpu9250;..\..\User\bsp\mpu9250\DMP\driver\eMPL;..\..\User\bsp\mpu9250\DMP\driver\include;..\..\User\bsp\mpu9250\DMP\driver\stm32L;..\..\User\bsp\mpu9250\DMP\eMPL-hal;..\..\User\bsp\mpu9250\DMP\mllite;..\..\User\bsp\mpu9250\DMP\mpl;..\..\User\bsp\qspi;..\..\User\bsp\w25qxx;..\..\User\bsp\nand;..\..\User\malloc;..\..\User\bsp\sdmmc;..\..\User\fatfs\exfuns;..\..\User\fatfs\src;..\..\User\bsp\usart;..\..\User\lwip;..\..\User\lwip\arch;..\..\User\lwip\lwip_app\lwip_comm;..\..\User\lwip\lwip-1.4.1\src\include;..\..\User\lwip\lwip-1.4.1\src\include\netif;..\..\User\lwip\lwip-1.4.1\src\include\ipv4;..\..\User\bsp\lan8720;..\..\User\lwip\lwip_app\udp_demo;..\..\User\lwip\lwip_app\tcp_client_demo</IncludePath>
+              <IncludePath>..\..\Libraries\CMSIS\Include;..\..\Libraries\CMSIS\Device\ST\STM32F7xx\Include;..\..\Libraries\STM32F7xx_HAL_Driver\Inc;..\..\User;..\..\rtthread\3.1.5\include;..\..\User\bsp;..\..\rtthread\3.1.5\components\finsh;..\..\User\common;..\..\User\bsp\gpio;..\..\User\bsp\sdram;..\..\User\bsp\delay;..\..\User\bsp\lcd;..\..\User\bsp\rtc;..\..\User\bsp\adc;..\..\User\bsp\i2c;..\..\User\bsp\pcf8574;..\..\User\sys;..\..\User\bsp\mpu9250;..\..\User\bsp\mpu9250\DMP\driver\eMPL;..\..\User\bsp\mpu9250\DMP\driver\include;..\..\User\bsp\mpu9250\DMP\driver\stm32L;..\..\User\bsp\mpu9250\DMP\eMPL-hal;..\..\User\bsp\mpu9250\DMP\mllite;..\..\User\bsp\mpu9250\DMP\mpl;..\..\User\bsp\qspi;..\..\User\bsp\w25qxx;..\..\User\bsp\nand;..\..\User\malloc;..\..\User\bsp\sdmmc;..\..\User\fatfs\exfuns;..\..\User\fatfs\src;..\..\User\bsp\usart;..\..\User\lwip;..\..\User\lwip\arch;..\..\User\lwip\lwip_app\lwip_comm;..\..\User\lwip\lwip-1.4.1\src\include;..\..\User\lwip\lwip-1.4.1\src\include\netif;..\..\User\lwip\lwip-1.4.1\src\include\ipv4;..\..\User\bsp\lan8720;..\..\User\lwip\lwip_app\udp_demo;..\..\User\lwip\lwip_app\tcp_client_demo;..\..\User\usb\STM32_USB_Device_Library\Class\msc\inc;..\..\User\usb\STM32_USB_Device_Library\Core\inc;..\..\User\usb\STM32_USB_OTG_Driver\inc;..\..\User\usb\USB_APP</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -1316,6 +1316,91 @@
               <FileName>tcpip.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\User\lwip\lwip-1.4.1\src\api\tcpip.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>USB_OTG</GroupName>
+          <Files>
+            <File>
+              <FileName>usb_core.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\User\usb\STM32_USB_OTG_Driver\src\usb_core.c</FilePath>
+            </File>
+            <File>
+              <FileName>usb_dcd.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\User\usb\STM32_USB_OTG_Driver\src\usb_dcd.c</FilePath>
+            </File>
+            <File>
+              <FileName>usb_dcd_int.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\User\usb\STM32_USB_OTG_Driver\src\usb_dcd_int.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>USB_DEVICE</GroupName>
+          <Files>
+            <File>
+              <FileName>usbd_core.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\User\usb\STM32_USB_Device_Library\Core\src\usbd_core.c</FilePath>
+            </File>
+            <File>
+              <FileName>usbd_ioreq.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\User\usb\STM32_USB_Device_Library\Core\src\usbd_ioreq.c</FilePath>
+            </File>
+            <File>
+              <FileName>usbd_req.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\User\usb\STM32_USB_Device_Library\Core\src\usbd_req.c</FilePath>
+            </File>
+            <File>
+              <FileName>usbd_msc_bot.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\User\usb\STM32_USB_Device_Library\Class\msc\src\usbd_msc_bot.c</FilePath>
+            </File>
+            <File>
+              <FileName>usbd_msc_core.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\User\usb\STM32_USB_Device_Library\Class\msc\src\usbd_msc_core.c</FilePath>
+            </File>
+            <File>
+              <FileName>usbd_msc_data.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\User\usb\STM32_USB_Device_Library\Class\msc\src\usbd_msc_data.c</FilePath>
+            </File>
+            <File>
+              <FileName>usbd_msc_scsi.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\User\usb\STM32_USB_Device_Library\Class\msc\src\usbd_msc_scsi.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>USB_APP</GroupName>
+          <Files>
+            <File>
+              <FileName>usb_bsp.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\User\usb\USB_APP\usb_bsp.c</FilePath>
+            </File>
+            <File>
+              <FileName>usbd_desc.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\User\usb\USB_APP\usbd_desc.c</FilePath>
+            </File>
+            <File>
+              <FileName>usbd_storage_msd.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\User\usb\USB_APP\usbd_storage_msd.c</FilePath>
+            </File>
+            <File>
+              <FileName>usbd_usr.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\User\usb\USB_APP\usbd_usr.c</FilePath>
             </File>
           </Files>
         </Group>
