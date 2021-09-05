@@ -2,37 +2,25 @@
 #define _OV5640_H
 #include "sys.h"
 #include "sccb.h"
-//////////////////////////////////////////////////////////////////////////////////	 
-//±¾³ÌĞòÖ»¹©Ñ§Ï°Ê¹ÓÃ£¬Î´¾­×÷ÕßĞí¿É£¬²»µÃÓÃÓÚÆäËüÈÎºÎÓÃÍ¾
-//ALIENTEK STM32¿ª·¢°å
-//OV5640 Çı¶¯´úÂë	   
-//ÕıµãÔ­×Ó@ALIENTEK
-//¼¼ÊõÂÛÌ³:www.openedv.com
-//´´½¨ÈÕÆÚ:2015/12/30
-//°æ±¾£ºV1.0
-//°æÈ¨ËùÓĞ£¬µÁ°æ±Ø¾¿¡£
-//Copyright(C) ¹ãÖİÊĞĞÇÒíµç×Ó¿Æ¼¼ÓĞÏŞ¹«Ë¾ 2014-2024
-//All rights reserved									  
-////////////////////////////////////////////////////////////////////////////////// 
 
-//#define OV5640_PWDN  	PGout(9)			//POWER DOWN¿ØÖÆĞÅºÅ,ÓÉPCF8574_P2¿ØÖÆ 
-#define OV5640_RST(n)  	(n?HAL_GPIO_WritePin(GPIOA,GPIO_PIN_15,GPIO_PIN_SET):HAL_GPIO_WritePin(GPIOA,GPIO_PIN_15,GPIO_PIN_RESET))//¸´Î»¿ØÖÆĞÅºÅ 
-////////////////////////////////////////////////////////////////////////////////// 
-#define OV5640_ID               0X5640  	//OV5640µÄĞ¾Æ¬ID
- 
+//#define OV5640_PWDN   PGout(9)            //POWER DOWNæ§åˆ¶ä¿¡å·,ç”±PCF8574_P2æ§åˆ¶
+#define OV5640_RST(n)   (n?HAL_GPIO_WritePin(GPIOA,GPIO_PIN_15,GPIO_PIN_SET):HAL_GPIO_WritePin(GPIOA,GPIO_PIN_15,GPIO_PIN_RESET))//å¤ä½æ§åˆ¶ä¿¡å· 
+//////////////////////////////////////////////////////////////////////////////////
+#define OV5640_ID               0X5640      //OV5640çš„èŠ¯ç‰‡ID
 
-#define OV5640_ADDR        		0X78		//OV5640µÄIICµØÖ·
- 
-//OV5640Ïà¹Ø¼Ä´æÆ÷¶¨Òå  
-#define OV5640_CHIPIDH          0X300A  	//OV5640Ğ¾Æ¬ID¸ß×Ö½Ú
-#define OV5640_CHIPIDL          0X300B  	//OV5640Ğ¾Æ¬IDµÍ×Ö½Ú
- 
 
-								
-u8 OV5640_WR_Reg(u16 reg,u8 data);
+#define OV5640_ADDR             0X78        //OV5640çš„IICåœ°å€
+
+//OV5640ç›¸å…³å¯„å­˜å™¨å®šä¹‰
+#define OV5640_CHIPIDH          0X300A      //OV5640èŠ¯ç‰‡IDé«˜å­—èŠ‚
+#define OV5640_CHIPIDL          0X300B      //OV5640èŠ¯ç‰‡IDä½å­—èŠ‚
+
+
+
+u8 OV5640_WR_Reg(u16 reg, u8 data);
 u8 OV5640_RD_Reg(u16 reg);
 void OV5640_PWDN_Set(u8 sta);
-u8 OV5640_Init(void);  
+u8 OV5640_Init(void);
 void OV5640_JPEG_Mode(void);
 void OV5640_RGB565_Mode(void);
 void OV5640_Light_Mode(u8 mode);
@@ -43,8 +31,8 @@ void OV5640_Sharpness(u8 sharp);
 void OV5640_Special_Effects(u8 eft);
 void OV5640_Test_Pattern(u8 mode);
 void OV5640_Flash_Ctrl(u8 sw);
-u8 OV5640_OutSize_Set(u16 offx,u16 offy,u16 width,u16 height);
-u8 OV5640_ImageWin_Set(u16 offx,u16 offy,u16 width,u16 height); 
+u8 OV5640_OutSize_Set(u16 offx, u16 offy, u16 width, u16 height);
+u8 OV5640_ImageWin_Set(u16 offx, u16 offy, u16 width, u16 height);
 u8 OV5640_Focus_Init(void);
 u8 OV5640_Focus_Single(void);
 u8 OV5640_Focus_Constant(void);

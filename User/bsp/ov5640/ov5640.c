@@ -1,440 +1,457 @@
+#include <stdlib.h>
+#include "rtthread.h"
 #include "sys.h"
 #include "ov5640.h"
 #include "ov5640cfg.h"
 #include "ov5640af.h"
-#include "timer.h"	  
 #include "delay.h"
-#include "usart.h"			 
-#include "sccb.h"	
-#include "pcf8574.h"  
-#include "ltdc.h"  
-//////////////////////////////////////////////////////////////////////////////////	 
-//±¾³ÌĞòÖ»¹©Ñ§Ï°Ê¹ÓÃ£¬Î´¾­×÷ÕßĞí¿É£¬²»µÃÓÃÓÚÆäËüÈÎºÎÓÃÍ¾
-//ALIENTEK STM32¿ª·¢°å
-//OV5640 Çı¶¯´úÂë	   
-//ÕıµãÔ­×Ó@ALIENTEK
-//¼¼ÊõÂÛÌ³:www.openedv.com
-//´´½¨ÈÕÆÚ:2016/1/6
-//°æ±¾£ºV1.0
-//°æÈ¨ËùÓĞ£¬µÁ°æ±Ø¾¿¡£
-//Copyright(C) ¹ãÖİÊĞĞÇÒíµç×Ó¿Æ¼¼ÓĞÏŞ¹«Ë¾ 2014-2024
-//All rights reserved									  
-////////////////////////////////////////////////////////////////////////////////// 
- 
+#include "usart.h"
+#include "sccb.h"
+#include "pcf8574.h"
+#include "ltdc.h"
 
-//OV5640Ğ´¼Ä´æÆ÷
-//·µ»ØÖµ:0,³É¹¦;1,Ê§°Ü.
-u8 OV5640_WR_Reg(u16 reg,u8 data)
+//OV5640å†™å¯„å­˜å™¨
+//è¿”å›å€¼:0,æˆåŠŸ;1,å¤±è´¥.
+u8 OV5640_WR_Reg(u16 reg, u8 data)
 {
-	u8 res=0;
-	SCCB_Start(); 					//Æô¶¯SCCB´«Êä
-	if(SCCB_WR_Byte(OV5640_ADDR))res=1;	//Ğ´Æ÷¼şID	  
-   	if(SCCB_WR_Byte(reg>>8))res=1;	//Ğ´¼Ä´æÆ÷¸ß8Î»µØÖ·
-   	if(SCCB_WR_Byte(reg))res=1;		//Ğ´¼Ä´æÆ÷µÍ8Î»µØÖ·		  
-   	if(SCCB_WR_Byte(data))res=1; 	//Ğ´Êı¾İ	 
-  	SCCB_Stop();	  
-  	return	res;
+	u8 res = 0;
+	SCCB_Start(); 					//å¯åŠ¨SCCBä¼ è¾“
+	if (SCCB_WR_Byte(OV5640_ADDR))res = 1;	//å†™å™¨ä»¶ID
+	if (SCCB_WR_Byte(reg >> 8))res = 1;	//å†™å¯„å­˜å™¨é«˜8ä½åœ°å€
+	if (SCCB_WR_Byte(reg))res = 1;		//å†™å¯„å­˜å™¨ä½8ä½åœ°å€
+	if (SCCB_WR_Byte(data))res = 1; 	//å†™æ•°æ®
+	SCCB_Stop();
+	return	res;
 }
-//OV5640¶Á¼Ä´æÆ÷
-//·µ»ØÖµ:¶Áµ½µÄ¼Ä´æÆ÷Öµ
+
+static void sccb_write_reg_cmd(int argc,char**argv)
+{
+	if(argc < 3)
+	{
+		rt_kprintf("sccb write:reg data \r\n");
+		return;
+	}
+	rt_kprintf("sccb write reg:0x%x data:0x%x \r\n",atoi(argv[1]), atoi(argv[2]));
+	OV5640_WR_Reg(atoi(argv[1]), atoi(argv[2]));
+}
+FINSH_FUNCTION_EXPORT_ALIAS(sccb_write_reg_cmd, __cmd_sccb_write, sccb write reg);
+
+//OV5640è¯»å¯„å­˜å™¨
+//è¿”å›å€¼:è¯»åˆ°çš„å¯„å­˜å™¨å€¼
 u8 OV5640_RD_Reg(u16 reg)
 {
-	u8 val=0;
-	SCCB_Start(); 				//Æô¶¯SCCB´«Êä
-	SCCB_WR_Byte(OV5640_ADDR);	//Ğ´Æ÷¼şID
-   	SCCB_WR_Byte(reg>>8);	    //Ğ´¼Ä´æÆ÷¸ß8Î»µØÖ·   
-  	SCCB_WR_Byte(reg);			//Ğ´¼Ä´æÆ÷µÍ8Î»µØÖ·	  
- 	SCCB_Stop();   
- 	//ÉèÖÃ¼Ä´æÆ÷µØÖ·ºó£¬²ÅÊÇ¶Á
+	u8 val = 0;
+	SCCB_Start(); 				//å¯åŠ¨SCCBä¼ è¾“
+	SCCB_WR_Byte(OV5640_ADDR);	//å†™å™¨ä»¶ID
+	SCCB_WR_Byte(reg >> 8);	  //å†™å¯„å­˜å™¨é«˜8ä½åœ°å€
+	SCCB_WR_Byte(reg);			//å†™å¯„å­˜å™¨ä½8ä½åœ°å€
+	SCCB_Stop();
+	//è®¾ç½®å¯„å­˜å™¨åœ°å€åï¼Œæ‰æ˜¯è¯»
 	SCCB_Start();
-	SCCB_WR_Byte(OV5640_ADDR|0X01);//·¢ËÍ¶ÁÃüÁî	  
-   	val=SCCB_RD_Byte();		 	//¶ÁÈ¡Êı¾İ
-  	SCCB_No_Ack();
-  	SCCB_Stop();
-  	return val;
+	SCCB_WR_Byte(OV5640_ADDR | 0X01); //å‘é€è¯»å‘½ä»¤
+	val = SCCB_RD_Byte();		 	//è¯»å–æ•°æ®
+	SCCB_No_Ack();
+	SCCB_Stop();
+	return val;
 }
- 
-//ÉèÖÃÉãÏñÍ·Ä£¿éPWDN½ÅµÄ×´Ì¬
-//sta:0,PWDN=0,ÉÏµç.
-//    1,PWDN=1,µôµç
+
+static void sccb_read_reg_cmd(int argc,char**argv)
+{
+	if(argc < 2)
+	{
+		rt_kprintf("sccb read:reg \r\n");
+		return;
+	}
+	
+	rt_kprintf("sccb read reg:0x%x = 0x%x \r\n",atoi(argv[1]),OV5640_RD_Reg(atoi(argv[1])));
+}
+FINSH_FUNCTION_EXPORT_ALIAS(sccb_read_reg_cmd, __cmd_sccb_read, sccb read reg);
+
+
+//è®¾ç½®æ‘„åƒå¤´æ¨¡å—PWDNè„šçš„çŠ¶æ€
+//sta:0,PWDN=0,ä¸Šç”µ.
+//    1,PWDN=1,æ‰ç”µ
 void OV5640_PWDN_Set(u8 sta)
 {
-	PCF8574_WriteBit(DCMI_PWDN_IO,sta);
+	PCF8574_WriteBit(DCMI_PWDN_IO, sta);
 }
-//³õÊ¼»¯OV5640 
-//ÅäÖÃÍêÒÔºó,Ä¬ÈÏÊä³öÊÇ1600*1200³ß´çµÄÍ¼Æ¬!! 
-//·µ»ØÖµ:0,³É¹¦
-//    ÆäËû,´íÎó´úÂë
+//åˆå§‹åŒ–OV5640
+//é…ç½®å®Œä»¥å,é»˜è®¤è¾“å‡ºæ˜¯1600*1200å°ºå¯¸çš„å›¾ç‰‡!!
+//è¿”å›å€¼:0,æˆåŠŸ
+//    å…¶ä»–,é”™è¯¯ä»£ç 
 u8 OV5640_Init(void)
-{ 
-	u16 i=0;
+{
+	u16 i = 0;
 	u16 reg;
-	//ÉèÖÃIO     	
-     GPIO_InitTypeDef GPIO_Initure;
-    __HAL_RCC_GPIOA_CLK_ENABLE();			//¿ªÆôGPIOAÊ±ÖÓ
-	
-    GPIO_Initure.Pin=GPIO_PIN_15;           //PA15
-    GPIO_Initure.Mode=GPIO_MODE_OUTPUT_PP;  //ÍÆÍìÊä³ö
-    GPIO_Initure.Pull=GPIO_PULLUP;          //ÉÏÀ­
-    GPIO_Initure.Speed=GPIO_SPEED_HIGH;     //¸ßËÙ
-    HAL_GPIO_Init(GPIOA,&GPIO_Initure);     //³õÊ¼»¯
-    
-	PCF8574_Init();			//³õÊ¼»¯PCF8574
-	OV5640_RST(0);			//±ØĞëÏÈÀ­µÍOV5640µÄRST½Å,ÔÙÉÏµç
-	delay_ms(20); 
+	//è®¾ç½®IO
+	GPIO_InitTypeDef GPIO_Initure;
+	__HAL_RCC_GPIOA_CLK_ENABLE();			//å¼€å¯GPIOAæ—¶é’Ÿ
+
+	GPIO_Initure.Pin = GPIO_PIN_15;         //PA15
+	GPIO_Initure.Mode = GPIO_MODE_OUTPUT_PP; //æ¨æŒ½è¾“å‡º
+	GPIO_Initure.Pull = GPIO_PULLUP;        //ä¸Šæ‹‰
+	GPIO_Initure.Speed = GPIO_SPEED_HIGH;   //é«˜é€Ÿ
+	HAL_GPIO_Init(GPIOA, &GPIO_Initure);    //åˆå§‹åŒ–
+
+	PCF8574_Init();			//åˆå§‹åŒ–PCF8574
+	OV5640_RST(0);			//å¿…é¡»å…ˆæ‹‰ä½OV5640çš„RSTè„š,å†ä¸Šç”µ
+	delay_ms(20);
 	OV5640_PWDN_Set(0);		//POWER ON
-	delay_ms(5);  
-	OV5640_RST(1);			//½áÊø¸´Î» 
-	delay_ms(20);      
-  	SCCB_Init();			//³õÊ¼»¯SCCB µÄIO¿Ú 
-	delay_ms(5); 
-	reg=OV5640_RD_Reg(OV5640_CHIPIDH);	//¶ÁÈ¡ID ¸ß°ËÎ»
-	reg<<=8;
-	reg|=OV5640_RD_Reg(OV5640_CHIPIDL);	//¶ÁÈ¡ID µÍ°ËÎ»
-	if(reg!=OV5640_ID)
+	delay_ms(5);
+	OV5640_RST(1);			//ç»“æŸå¤ä½
+	delay_ms(20);
+	SCCB_Init();			//åˆå§‹åŒ–SCCB çš„IOå£
+	delay_ms(5);
+	reg = OV5640_RD_Reg(OV5640_CHIPIDH);	//è¯»å–ID é«˜å…«ä½
+	reg <<= 8;
+	reg |= OV5640_RD_Reg(OV5640_CHIPIDL);	//è¯»å–ID ä½å…«ä½
+	if (reg != OV5640_ID)
 	{
-		printf("ID:%d\r\n",reg);
+		printf("ID:%d\r\n", reg);
 		return 1;
-	}  
-	OV5640_WR_Reg(0x3103,0X11);	//system clock from pad, bit[1]
-	OV5640_WR_Reg(0X3008,0X82);	//Èí¸´Î»
+	}
+	OV5640_WR_Reg(0x3103, 0X11);	//system clock from pad, bit[1]
+	OV5640_WR_Reg(0X3008, 0X82);	//è½¯å¤ä½
 	delay_ms(10);
- 	//³õÊ¼»¯ OV5640,²ÉÓÃSXGA·Ö±æÂÊ(1600*1200)  
-	for(i=0;i<sizeof(ov5640_uxga_init_reg_tbl)/4;i++)
+	//åˆå§‹åŒ– OV5640,é‡‡ç”¨SXGAåˆ†è¾¨ç‡(1600*1200)
+	for (i = 0; i < sizeof(ov5640_uxga_init_reg_tbl) / 4; i++)
 	{
-	   	OV5640_WR_Reg(ov5640_uxga_init_reg_tbl[i][0],ov5640_uxga_init_reg_tbl[i][1]);
- 	}   
-	//¼ì²éÉÁ¹âµÆÊÇ·ñÕı³£
-	OV5640_Flash_Ctrl(1);//´ò¿ªÉÁ¹âµÆ
+		OV5640_WR_Reg(ov5640_uxga_init_reg_tbl[i][0], ov5640_uxga_init_reg_tbl[i][1]);
+	}
+	//æ£€æŸ¥é—ªå…‰ç¯æ˜¯å¦æ­£å¸¸
+	OV5640_Flash_Ctrl(1);//æ‰“å¼€é—ªå…‰ç¯
 	delay_ms(50);
-	OV5640_Flash_Ctrl(0);//¹Ø±ÕÉÁ¹âµÆ
-  	return 0x00; 	//ok
-} 
-//OV5640ÇĞ»»ÎªJPEGÄ£Ê½
-void OV5640_JPEG_Mode(void) 
-{
-	u16 i=0; 
-	//ÉèÖÃ:Êä³öJPEGÊı¾İ
-	for(i=0;i<(sizeof(OV5640_jpeg_reg_tbl)/4);i++)
-	{
-		OV5640_WR_Reg(OV5640_jpeg_reg_tbl[i][0],OV5640_jpeg_reg_tbl[i][1]);  
-	}  
+	OV5640_Flash_Ctrl(0);//å…³é—­é—ªå…‰ç¯
+	return 0x00; 	//ok
 }
-//OV5640ÇĞ»»ÎªRGB565Ä£Ê½
-void OV5640_RGB565_Mode(void) 
+
+MSH_CMD_EXPORT(OV5640_Init, ov5640 init);
+
+//OV5640åˆ‡æ¢ä¸ºJPEGæ¨¡å¼
+void OV5640_JPEG_Mode(void)
 {
-	u16 i=0;
-	//ÉèÖÃ:RGB565Êä³ö
-	for(i=0;i<(sizeof(ov5640_rgb565_reg_tbl)/4);i++)
+	u16 i = 0;
+	//è®¾ç½®:è¾“å‡ºJPEGæ•°æ®
+	for (i = 0; i < (sizeof(OV5640_jpeg_reg_tbl) / 4); i++)
 	{
-		OV5640_WR_Reg(ov5640_rgb565_reg_tbl[i][0],ov5640_rgb565_reg_tbl[i][1]); 
-	} 
-	if(lcdltdc.pwidth!=0)OV5640_WR_Reg(0X3821,0X06);//RGBÆÁ,Ë®Æ½¾µÏñ
-} 
-//µÆ¹âÄ£Ê½²ÎÊı±í,Ö§³Ö5¸öÄ£Ê½
-const static u8 OV5640_LIGHTMODE_TBL[5][7]=
-{ 
-	0x04,0X00,0X04,0X00,0X04,0X00,0X00,//Auto,×Ô¶¯ 
-	0x06,0X1C,0X04,0X00,0X04,0XF3,0X01,//Sunny,ÈÕ¹â
-	0x05,0X48,0X04,0X00,0X07,0XCF,0X01,//Office,°ì¹«ÊÒ
-	0x06,0X48,0X04,0X00,0X04,0XD3,0X01,//Cloudy,ÒõÌì 
-	0x04,0X10,0X04,0X00,0X08,0X40,0X01,//Home,ÊÒÄÚ
-}; 
-//°×Æ½ºâÉèÖÃ
-//0:×Ô¶¯
-//1:ÈÕ¹âsunny
-//2,°ì¹«ÊÒoffice
-//3,ÒõÌìcloudy
-//4,¼ÒÀïhome
+		OV5640_WR_Reg(OV5640_jpeg_reg_tbl[i][0], OV5640_jpeg_reg_tbl[i][1]);
+	}
+}
+//OV5640åˆ‡æ¢ä¸ºRGB565æ¨¡å¼
+void OV5640_RGB565_Mode(void)
+{
+	u16 i = 0;
+	//è®¾ç½®:RGB565è¾“å‡º
+	for (i = 0; i < (sizeof(ov5640_rgb565_reg_tbl) / 4); i++)
+	{
+		OV5640_WR_Reg(ov5640_rgb565_reg_tbl[i][0], ov5640_rgb565_reg_tbl[i][1]);
+	}
+	if (lcdltdc.pwidth != 0)OV5640_WR_Reg(0X3821, 0X06); //RGBå±,æ°´å¹³é•œåƒ
+}
+//ç¯å…‰æ¨¡å¼å‚æ•°è¡¨,æ”¯æŒ5ä¸ªæ¨¡å¼
+const static u8 OV5640_LIGHTMODE_TBL[5][7] =
+{
+	0x04, 0X00, 0X04, 0X00, 0X04, 0X00, 0X00, //Auto,è‡ªåŠ¨
+	0x06, 0X1C, 0X04, 0X00, 0X04, 0XF3, 0X01, //Sunny,æ—¥å…‰
+	0x05, 0X48, 0X04, 0X00, 0X07, 0XCF, 0X01, //Office,åŠå…¬å®¤
+	0x06, 0X48, 0X04, 0X00, 0X04, 0XD3, 0X01, //Cloudy,é˜´å¤©
+	0x04, 0X10, 0X04, 0X00, 0X08, 0X40, 0X01, //Home,å®¤å†…
+};
+//ç™½å¹³è¡¡è®¾ç½®
+//0:è‡ªåŠ¨
+//1:æ—¥å…‰sunny
+//2,åŠå…¬å®¤office
+//3,é˜´å¤©cloudy
+//4,å®¶é‡Œhome
 void OV5640_Light_Mode(u8 mode)
 {
 	u8 i;
-	OV5640_WR_Reg(0x3212,0x03);	//start group 3
-	for(i=0;i<7;i++)OV5640_WR_Reg(0x3400+i,OV5640_LIGHTMODE_TBL[mode][i]);//ÉèÖÃ±¥ºÍ¶È 
-	OV5640_WR_Reg(0x3212,0x13); //end group 3
-	OV5640_WR_Reg(0x3212,0xa3); //launch group 3	
+	OV5640_WR_Reg(0x3212, 0x03);	//start group 3
+	for (i = 0; i < 7; i++)OV5640_WR_Reg(0x3400 + i, OV5640_LIGHTMODE_TBL[mode][i]); //è®¾ç½®é¥±å’Œåº¦
+	OV5640_WR_Reg(0x3212, 0x13); //end group 3
+	OV5640_WR_Reg(0x3212, 0xa3); //launch group 3
 }
-//É«²Ê±¥ºÍ¶ÈÉèÖÃ²ÎÊı±í,Ö§³Ö7¸öµÈ¼¶
-const static u8 OV5640_SATURATION_TBL[7][6]=
-{ 
-	0X0C,0x30,0X3D,0X3E,0X3D,0X01,//-3 
-	0X10,0x3D,0X4D,0X4E,0X4D,0X01,//-2	
-	0X15,0x52,0X66,0X68,0X66,0X02,//-1	
-	0X1A,0x66,0X80,0X82,0X80,0X02,//+0	
-	0X1F,0x7A,0X9A,0X9C,0X9A,0X02,//+1	
-	0X24,0x8F,0XB3,0XB6,0XB3,0X03,//+2
- 	0X2B,0xAB,0XD6,0XDA,0XD6,0X04,//+3
-}; 
-//É«¶ÈÉèÖÃ
-//sat:0~6,´ú±í±¥ºÍ¶È-3~3. 
+//è‰²å½©é¥±å’Œåº¦è®¾ç½®å‚æ•°è¡¨,æ”¯æŒ7ä¸ªç­‰çº§
+const static u8 OV5640_SATURATION_TBL[7][6] =
+{
+	0X0C, 0x30, 0X3D, 0X3E, 0X3D, 0X01, //-3
+	0X10, 0x3D, 0X4D, 0X4E, 0X4D, 0X01, //-2
+	0X15, 0x52, 0X66, 0X68, 0X66, 0X02, //-1
+	0X1A, 0x66, 0X80, 0X82, 0X80, 0X02, //+0
+	0X1F, 0x7A, 0X9A, 0X9C, 0X9A, 0X02, //+1
+	0X24, 0x8F, 0XB3, 0XB6, 0XB3, 0X03, //+2
+	0X2B, 0xAB, 0XD6, 0XDA, 0XD6, 0X04, //+3
+};
+//è‰²åº¦è®¾ç½®
+//sat:0~6,ä»£è¡¨é¥±å’Œåº¦-3~3.
 void OV5640_Color_Saturation(u8 sat)
-{ 
+{
 	u8 i;
-	OV5640_WR_Reg(0x3212,0x03);	//start group 3
-	OV5640_WR_Reg(0x5381,0x1c);
-	OV5640_WR_Reg(0x5382,0x5a);
-	OV5640_WR_Reg(0x5383,0x06);
-	for(i=0;i<6;i++)OV5640_WR_Reg(0x5384+i,OV5640_SATURATION_TBL[sat][i]);//ÉèÖÃ±¥ºÍ¶È 
+	OV5640_WR_Reg(0x3212, 0x03);	//start group 3
+	OV5640_WR_Reg(0x5381, 0x1c);
+	OV5640_WR_Reg(0x5382, 0x5a);
+	OV5640_WR_Reg(0x5383, 0x06);
+	for (i = 0; i < 6; i++)OV5640_WR_Reg(0x5384 + i, OV5640_SATURATION_TBL[sat][i]); //è®¾ç½®é¥±å’Œåº¦
 	OV5640_WR_Reg(0x538b, 0x98);
 	OV5640_WR_Reg(0x538a, 0x01);
 	OV5640_WR_Reg(0x3212, 0x13); //end group 3
-	OV5640_WR_Reg(0x3212, 0xa3); //launch group 3	
+	OV5640_WR_Reg(0x3212, 0xa3); //launch group 3
 }
-//ÁÁ¶ÈÉèÖÃ
-//bright:0~8,´ú±íÁÁ¶È-4~4.
+//äº®åº¦è®¾ç½®
+//bright:0~8,ä»£è¡¨äº®åº¦-4~4.
 void OV5640_Brightness(u8 bright)
 {
 	u8 brtval;
-	if(bright<4)brtval=4-bright;
-	else brtval=bright-4;
-	OV5640_WR_Reg(0x3212,0x03);	//start group 3
-	OV5640_WR_Reg(0x5587,brtval<<4);
-	if(bright<4)OV5640_WR_Reg(0x5588,0x09);
-	else OV5640_WR_Reg(0x5588,0x01);
-	OV5640_WR_Reg(0x3212,0x13); //end group 3
-	OV5640_WR_Reg(0x3212,0xa3); //launch group 3
+	if (bright < 4)brtval = 4 - bright;
+	else brtval = bright - 4;
+	OV5640_WR_Reg(0x3212, 0x03);	//start group 3
+	OV5640_WR_Reg(0x5587, brtval << 4);
+	if (bright < 4)OV5640_WR_Reg(0x5588, 0x09);
+	else OV5640_WR_Reg(0x5588, 0x01);
+	OV5640_WR_Reg(0x3212, 0x13); //end group 3
+	OV5640_WR_Reg(0x3212, 0xa3); //launch group 3
 }
-//¶Ô±È¶ÈÉèÖÃ
-//contrast:0~6,´ú±íÁÁ¶È-3~3.
+//å¯¹æ¯”åº¦è®¾ç½®
+//contrast:0~6,ä»£è¡¨äº®åº¦-3~3.
 void OV5640_Contrast(u8 contrast)
 {
-	u8 reg0val=0X00;//contrast=3,Ä¬ÈÏ¶Ô±È¶È
-	u8 reg1val=0X20;
-  	switch(contrast)
+	u8 reg0val = 0X00; //contrast=3,é»˜è®¤å¯¹æ¯”åº¦
+	u8 reg1val = 0X20;
+	switch (contrast)
 	{
-		case 0://-3
-			reg1val=reg0val=0X14;	 	 
-			break;	
-		case 1://-2
-			reg1val=reg0val=0X18; 	 
-			break;	
-		case 2://-1
-			reg1val=reg0val=0X1C;	 
-			break;	
-		case 4://1
-			reg0val=0X10;	 	 
-			reg1val=0X24;	 	 
-			break;	
-		case 5://2
-			reg0val=0X18;	 	 
-			reg1val=0X28;	 	 
-			break;	
-		case 6://3
-			reg0val=0X1C;	 	 
-			reg1val=0X2C;	 	 
-			break;	
-	} 
-	OV5640_WR_Reg(0x3212,0x03); //start group 3
-	OV5640_WR_Reg(0x5585,reg0val);
-	OV5640_WR_Reg(0x5586,reg1val); 
-	OV5640_WR_Reg(0x3212,0x13); //end group 3
-	OV5640_WR_Reg(0x3212,0xa3); //launch group 3
+	case 0://-3
+		reg1val = reg0val = 0X14;
+		break;
+	case 1://-2
+		reg1val = reg0val = 0X18;
+		break;
+	case 2://-1
+		reg1val = reg0val = 0X1C;
+		break;
+	case 4://1
+		reg0val = 0X10;
+		reg1val = 0X24;
+		break;
+	case 5://2
+		reg0val = 0X18;
+		reg1val = 0X28;
+		break;
+	case 6://3
+		reg0val = 0X1C;
+		reg1val = 0X2C;
+		break;
+	}
+	OV5640_WR_Reg(0x3212, 0x03); //start group 3
+	OV5640_WR_Reg(0x5585, reg0val);
+	OV5640_WR_Reg(0x5586, reg1val);
+	OV5640_WR_Reg(0x3212, 0x13); //end group 3
+	OV5640_WR_Reg(0x3212, 0xa3); //launch group 3
 }
-//Èñ¶ÈÉèÖÃ
-//sharp:0~33,0,¹Ø±Õ;33,auto;ÆäËûÖµ,Èñ¶È·¶Î§.
+//é”åº¦è®¾ç½®
+//sharp:0~33,0,å…³é—­;33,auto;å…¶ä»–å€¼,é”åº¦èŒƒå›´.
 void OV5640_Sharpness(u8 sharp)
 {
-	if(sharp<33)//ÉèÖÃÈñ¶ÈÖµ
+	if (sharp < 33) //è®¾ç½®é”åº¦å€¼
 	{
-		OV5640_WR_Reg(0x5308,0x65);
-		OV5640_WR_Reg(0x5302,sharp);
-	}else	//×Ô¶¯Èñ¶È
+		OV5640_WR_Reg(0x5308, 0x65);
+		OV5640_WR_Reg(0x5302, sharp);
+	} else	//è‡ªåŠ¨é”åº¦
 	{
-		OV5640_WR_Reg(0x5308,0x25);
-		OV5640_WR_Reg(0x5300,0x08);
-		OV5640_WR_Reg(0x5301,0x30);
-		OV5640_WR_Reg(0x5302,0x10);
-		OV5640_WR_Reg(0x5303,0x00);
-		OV5640_WR_Reg(0x5309,0x08);
-		OV5640_WR_Reg(0x530a,0x30);
-		OV5640_WR_Reg(0x530b,0x04);
-		OV5640_WR_Reg(0x530c,0x06);
+		OV5640_WR_Reg(0x5308, 0x25);
+		OV5640_WR_Reg(0x5300, 0x08);
+		OV5640_WR_Reg(0x5301, 0x30);
+		OV5640_WR_Reg(0x5302, 0x10);
+		OV5640_WR_Reg(0x5303, 0x00);
+		OV5640_WR_Reg(0x5309, 0x08);
+		OV5640_WR_Reg(0x530a, 0x30);
+		OV5640_WR_Reg(0x530b, 0x04);
+		OV5640_WR_Reg(0x530c, 0x06);
 	}
-	
+
 }
-//ÌØĞ§ÉèÖÃ²ÎÊı±í,Ö§³Ö7¸öÌØĞ§
-const static u8 OV5640_EFFECTS_TBL[7][3]=
-{ 
-	0X06,0x40,0X10,//Õı³£ 
-	0X1E,0xA0,0X40,//ÀäÉ«
-	0X1E,0x80,0XC0,//Å¯É«
-	0X1E,0x80,0X80,//ºÚ°×
-	0X1E,0x40,0XA0,//·º»Æ 
-	0X40,0x40,0X10,//·´É«
-	0X1E,0x60,0X60,//Æ«ÂÌ
-}; 
-//ÌØĞ§ÉèÖÃ
-//0:Õı³£    
-//1,ÀäÉ«
-//2,Å¯É«   
-//3,ºÚ°×
-//4,Æ«»Æ
-//5,·´É«
-//6,Æ«ÂÌ	    
+//ç‰¹æ•ˆè®¾ç½®å‚æ•°è¡¨,æ”¯æŒ7ä¸ªç‰¹æ•ˆ
+const static u8 OV5640_EFFECTS_TBL[7][3] =
+{
+	0X06, 0x40, 0X10, //æ­£å¸¸
+	0X1E, 0xA0, 0X40, //å†·è‰²
+	0X1E, 0x80, 0XC0, //æš–è‰²
+	0X1E, 0x80, 0X80, //é»‘ç™½
+	0X1E, 0x40, 0XA0, //æ³›é»„
+	0X40, 0x40, 0X10, //åè‰²
+	0X1E, 0x60, 0X60, //åç»¿
+};
+//ç‰¹æ•ˆè®¾ç½®
+//0:æ­£å¸¸
+//1,å†·è‰²
+//2,æš–è‰²
+//3,é»‘ç™½
+//4,åé»„
+//5,åè‰²
+//6,åç»¿
 void OV5640_Special_Effects(u8 eft)
-{ 
-	OV5640_WR_Reg(0x3212,0x03); //start group 3
-	OV5640_WR_Reg(0x5580,OV5640_EFFECTS_TBL[eft][0]);
-	OV5640_WR_Reg(0x5583,OV5640_EFFECTS_TBL[eft][1]);// sat U
-	OV5640_WR_Reg(0x5584,OV5640_EFFECTS_TBL[eft][2]);// sat V
-	OV5640_WR_Reg(0x5003,0x08);
-	OV5640_WR_Reg(0x3212,0x13); //end group 3
-	OV5640_WR_Reg(0x3212,0xa3); //launch group 3
+{
+	OV5640_WR_Reg(0x3212, 0x03); //start group 3
+	OV5640_WR_Reg(0x5580, OV5640_EFFECTS_TBL[eft][0]);
+	OV5640_WR_Reg(0x5583, OV5640_EFFECTS_TBL[eft][1]); // sat U
+	OV5640_WR_Reg(0x5584, OV5640_EFFECTS_TBL[eft][2]); // sat V
+	OV5640_WR_Reg(0x5003, 0x08);
+	OV5640_WR_Reg(0x3212, 0x13); //end group 3
+	OV5640_WR_Reg(0x3212, 0xa3); //launch group 3
 }
-//²âÊÔĞòÁĞ
-//mode:0,¹Ø±Õ
-//     1,²ÊÌõ 
-//     2,É«¿é
+//æµ‹è¯•åºåˆ—
+//mode:0,å…³é—­
+//     1,å½©æ¡
+//     2,è‰²å—
 void OV5640_Test_Pattern(u8 mode)
 {
-	if(mode==0)OV5640_WR_Reg(0X503D,0X00);
-	else if(mode==1)OV5640_WR_Reg(0X503D,0X80);
-	else if(mode==2)OV5640_WR_Reg(0X503D,0X82);
-} 
-//ÉÁ¹âµÆ¿ØÖÆ
-//mode:0,¹Ø±Õ
-//     1,´ò¿ª 
+	if (mode == 0)OV5640_WR_Reg(0X503D, 0X00);
+	else if (mode == 1)OV5640_WR_Reg(0X503D, 0X80);
+	else if (mode == 2)OV5640_WR_Reg(0X503D, 0X82);
+}
+//é—ªå…‰ç¯æ§åˆ¶
+//mode:0,å…³é—­
+//     1,æ‰“å¼€
 void OV5640_Flash_Ctrl(u8 sw)
 {
-	OV5640_WR_Reg(0x3016,0X02);
-	OV5640_WR_Reg(0x301C,0X02); 
-	if(sw)OV5640_WR_Reg(0X3019,0X02); 
-	else OV5640_WR_Reg(0X3019,0X00);
-} 
-//ÉèÖÃÍ¼ÏñÊä³ö´óĞ¡
-//OV5640Êä³öÍ¼ÏñµÄ´óĞ¡(·Ö±æÂÊ),ÍêÈ«ÓÉ¸Ãº¯ÊıÈ·¶¨
-//offx,offy,ÎªÊä³öÍ¼ÏñÔÚOV5640_ImageWin_SetÉè¶¨´°¿Ú(¼ÙÉè³¤¿íÎªxsizeºÍysize)ÉÏµÄÆ«ÒÆ
-//ÓÉÓÚ¿ªÆôÁËscale¹¦ÄÜ,ÓÃÓÚÊä³öµÄÍ¼Ïñ´°¿ÚÎª:xsize-2*offx,ysize-2*offy
-//width,height:Êµ¼ÊÊä³öÍ¼ÏñµÄ¿í¶ÈºÍ¸ß¶È
-//Êµ¼ÊÊä³ö(width,height),ÊÇÔÚxsize-2*offx,ysize-2*offyµÄ»ù´¡ÉÏ½øĞĞËõ·Å´¦Àí.
-//Ò»°ãÉèÖÃoffxºÍoffyµÄÖµÎª16ºÍ4,¸üĞ¡Ò²ÊÇ¿ÉÒÔ,²»¹ıÄ¬ÈÏÊÇ16ºÍ4 
-//·µ»ØÖµ:0,ÉèÖÃ³É¹¦
-//    ÆäËû,ÉèÖÃÊ§°Ü
-u8 OV5640_OutSize_Set(u16 offx,u16 offy,u16 width,u16 height)
-{ 
-    OV5640_WR_Reg(0X3212,0X03);  	//¿ªÊ¼×é3
-    //ÒÔÏÂÉèÖÃ¾ö¶¨Êµ¼ÊÊä³ö³ß´ç(´øËõ·Å)
-    OV5640_WR_Reg(0x3808,width>>8);	//ÉèÖÃÊµ¼ÊÊä³ö¿í¶È¸ß×Ö½Ú
-    OV5640_WR_Reg(0x3809,width&0xff);//ÉèÖÃÊµ¼ÊÊä³ö¿í¶ÈµÍ×Ö½Ú  
-    OV5640_WR_Reg(0x380a,height>>8);//ÉèÖÃÊµ¼ÊÊä³ö¸ß¶È¸ß×Ö½Ú
-    OV5640_WR_Reg(0x380b,height&0xff);//ÉèÖÃÊµ¼ÊÊä³ö¸ß¶ÈµÍ×Ö½Ú
-	//ÒÔÏÂÉèÖÃ¾ö¶¨Êä³ö³ß´çÔÚISPÉÏÃæµÄÈ¡Í¼·¶Î§
-	//·¶Î§:xsize-2*offx,ysize-2*offy
-    OV5640_WR_Reg(0x3810,offx>>8);	//ÉèÖÃX offset¸ß×Ö½Ú
-    OV5640_WR_Reg(0x3811,offx&0xff);//ÉèÖÃX offsetµÍ×Ö½Ú
-	
-    OV5640_WR_Reg(0x3812,offy>>8);	//ÉèÖÃY offset¸ß×Ö½Ú
-    OV5640_WR_Reg(0x3813,offy&0xff);//ÉèÖÃY offsetµÍ×Ö½Ú
-	
-    OV5640_WR_Reg(0X3212,0X13);		//½áÊø×é3
-    OV5640_WR_Reg(0X3212,0Xa3);		//ÆôÓÃ×é3ÉèÖÃ
-	return 0; 
+	OV5640_WR_Reg(0x3016, 0X02);
+	OV5640_WR_Reg(0x301C, 0X02);
+	if (sw)OV5640_WR_Reg(0X3019, 0X02);
+	else OV5640_WR_Reg(0X3019, 0X00);
+}
+//è®¾ç½®å›¾åƒè¾“å‡ºå¤§å°
+//OV5640è¾“å‡ºå›¾åƒçš„å¤§å°(åˆ†è¾¨ç‡),å®Œå…¨ç”±è¯¥å‡½æ•°ç¡®å®š
+//offx,offy,ä¸ºè¾“å‡ºå›¾åƒåœ¨OV5640_ImageWin_Setè®¾å®šçª—å£(å‡è®¾é•¿å®½ä¸ºxsizeå’Œysize)ä¸Šçš„åç§»
+//ç”±äºå¼€å¯äº†scaleåŠŸèƒ½,ç”¨äºè¾“å‡ºçš„å›¾åƒçª—å£ä¸º:xsize-2*offx,ysize-2*offy
+//width,height:å®é™…è¾“å‡ºå›¾åƒçš„å®½åº¦å’Œé«˜åº¦
+//å®é™…è¾“å‡º(width,height),æ˜¯åœ¨xsize-2*offx,ysize-2*offyçš„åŸºç¡€ä¸Šè¿›è¡Œç¼©æ”¾å¤„ç†.
+//ä¸€èˆ¬è®¾ç½®offxå’Œoffyçš„å€¼ä¸º16å’Œ4,æ›´å°ä¹Ÿæ˜¯å¯ä»¥,ä¸è¿‡é»˜è®¤æ˜¯16å’Œ4
+//è¿”å›å€¼:0,è®¾ç½®æˆåŠŸ
+//    å…¶ä»–,è®¾ç½®å¤±è´¥
+u8 OV5640_OutSize_Set(u16 offx, u16 offy, u16 width, u16 height)
+{
+	OV5640_WR_Reg(0X3212, 0X03);  	//å¼€å§‹ç»„3
+	//ä»¥ä¸‹è®¾ç½®å†³å®šå®é™…è¾“å‡ºå°ºå¯¸(å¸¦ç¼©æ”¾)
+	OV5640_WR_Reg(0x3808, width >> 8);	//è®¾ç½®å®é™…è¾“å‡ºå®½åº¦é«˜å­—èŠ‚
+	OV5640_WR_Reg(0x3809, width & 0xff); //è®¾ç½®å®é™…è¾“å‡ºå®½åº¦ä½å­—èŠ‚
+	OV5640_WR_Reg(0x380a, height >> 8); //è®¾ç½®å®é™…è¾“å‡ºé«˜åº¦é«˜å­—èŠ‚
+	OV5640_WR_Reg(0x380b, height & 0xff); //è®¾ç½®å®é™…è¾“å‡ºé«˜åº¦ä½å­—èŠ‚
+	//ä»¥ä¸‹è®¾ç½®å†³å®šè¾“å‡ºå°ºå¯¸åœ¨ISPä¸Šé¢çš„å–å›¾èŒƒå›´
+	//èŒƒå›´:xsize-2*offx,ysize-2*offy
+	OV5640_WR_Reg(0x3810, offx >> 8);	//è®¾ç½®X offseté«˜å­—èŠ‚
+	OV5640_WR_Reg(0x3811, offx & 0xff); //è®¾ç½®X offsetä½å­—èŠ‚
+
+	OV5640_WR_Reg(0x3812, offy >> 8);	//è®¾ç½®Y offseté«˜å­—èŠ‚
+	OV5640_WR_Reg(0x3813, offy & 0xff); //è®¾ç½®Y offsetä½å­—èŠ‚
+
+	OV5640_WR_Reg(0X3212, 0X13);		//ç»“æŸç»„3
+	OV5640_WR_Reg(0X3212, 0Xa3);		//å¯ç”¨ç»„3è®¾ç½®
+	return 0;
 }
 
-//ÉèÖÃÍ¼Ïñ¿ª´°´óĞ¡(ISP´óĞ¡),·Ç±ØÒª,Ò»°ãÎŞĞèµ÷ÓÃ´Ëº¯Êı
-//ÔÚÕû¸ö´«¸ĞÆ÷ÉÏÃæ¿ª´°(×î´ó2592*1944),ÓÃÓÚOV5640_OutSize_SetµÄÊä³ö
-//×¢Òâ:±¾º¯ÊıµÄ¿í¶ÈºÍ¸ß¶È,±ØĞë´óÓÚµÈÓÚOV5640_OutSize_Setº¯ÊıµÄ¿í¶ÈºÍ¸ß¶È
-//     OV5640_OutSize_SetÉèÖÃµÄ¿í¶ÈºÍ¸ß¶È,¸ù¾İ±¾º¯ÊıÉèÖÃµÄ¿í¶ÈºÍ¸ß¶È,ÓÉDSP
-//     ×Ô¶¯¼ÆËãËõ·Å±ÈÀı,Êä³ö¸øÍâ²¿Éè±¸.
-//width,height:¿í¶È(¶ÔÓ¦:horizontal)ºÍ¸ß¶È(¶ÔÓ¦:vertical)  
-//·µ»ØÖµ:0,ÉèÖÃ³É¹¦
-//    ÆäËû,ÉèÖÃÊ§°Ü
-u8 OV5640_ImageWin_Set(u16 offx,u16 offy,u16 width,u16 height)
+//è®¾ç½®å›¾åƒå¼€çª—å¤§å°(ISPå¤§å°),éå¿…è¦,ä¸€èˆ¬æ— éœ€è°ƒç”¨æ­¤å‡½æ•°
+//åœ¨æ•´ä¸ªä¼ æ„Ÿå™¨ä¸Šé¢å¼€çª—(æœ€å¤§2592*1944),ç”¨äºOV5640_OutSize_Setçš„è¾“å‡º
+//æ³¨æ„:æœ¬å‡½æ•°çš„å®½åº¦å’Œé«˜åº¦,å¿…é¡»å¤§äºç­‰äºOV5640_OutSize_Setå‡½æ•°çš„å®½åº¦å’Œé«˜åº¦
+//     OV5640_OutSize_Setè®¾ç½®çš„å®½åº¦å’Œé«˜åº¦,æ ¹æ®æœ¬å‡½æ•°è®¾ç½®çš„å®½åº¦å’Œé«˜åº¦,ç”±DSP
+//     è‡ªåŠ¨è®¡ç®—ç¼©æ”¾æ¯”ä¾‹,è¾“å‡ºç»™å¤–éƒ¨è®¾å¤‡.
+//width,height:å®½åº¦(å¯¹åº”:horizontal)å’Œé«˜åº¦(å¯¹åº”:vertical)
+//è¿”å›å€¼:0,è®¾ç½®æˆåŠŸ
+//    å…¶ä»–,è®¾ç½®å¤±è´¥
+u8 OV5640_ImageWin_Set(u16 offx, u16 offy, u16 width, u16 height)
 {
-	u16 xst,yst,xend,yend;
-	xst=offx;
-	yst=offy;
-	xend=offx+width-1;
-	yend=offy+height-1;  
-    OV5640_WR_Reg(0X3212,0X03);		//¿ªÊ¼×é3
-	OV5640_WR_Reg(0X3800,xst>>8);	
-	OV5640_WR_Reg(0X3801,xst&0XFF);	
-	OV5640_WR_Reg(0X3802,yst>>8);	
-	OV5640_WR_Reg(0X3803,yst&0XFF);	
-	OV5640_WR_Reg(0X3804,xend>>8);	
-	OV5640_WR_Reg(0X3805,xend&0XFF);
-	OV5640_WR_Reg(0X3806,yend>>8);	
-	OV5640_WR_Reg(0X3807,yend&0XFF);
-    OV5640_WR_Reg(0X3212,0X13);		//½áÊø×é3
-    OV5640_WR_Reg(0X3212,0Xa3);		//ÆôÓÃ×é3ÉèÖÃ	 
+	u16 xst, yst, xend, yend;
+	xst = offx;
+	yst = offy;
+	xend = offx + width - 1;
+	yend = offy + height - 1;
+	OV5640_WR_Reg(0X3212, 0X03);		//å¼€å§‹ç»„3
+	OV5640_WR_Reg(0X3800, xst >> 8);
+	OV5640_WR_Reg(0X3801, xst & 0XFF);
+	OV5640_WR_Reg(0X3802, yst >> 8);
+	OV5640_WR_Reg(0X3803, yst & 0XFF);
+	OV5640_WR_Reg(0X3804, xend >> 8);
+	OV5640_WR_Reg(0X3805, xend & 0XFF);
+	OV5640_WR_Reg(0X3806, yend >> 8);
+	OV5640_WR_Reg(0X3807, yend & 0XFF);
+	OV5640_WR_Reg(0X3212, 0X13);		//ç»“æŸç»„3
+	OV5640_WR_Reg(0X3212, 0Xa3);		//å¯ç”¨ç»„3è®¾ç½®
 	return 0;
-}   
-//³õÊ¼»¯×Ô¶¯¶Ô½¹
-//·µ»ØÖµ:0,³É¹¦;1,Ê§°Ü.
+}
+//åˆå§‹åŒ–è‡ªåŠ¨å¯¹ç„¦
+//è¿”å›å€¼:0,æˆåŠŸ;1,å¤±è´¥.
 u8 OV5640_Focus_Init(void)
-{ 
-	u16 i; 
-	u16 addr=0x8000;
-	u8 state=0x8F;
-	OV5640_WR_Reg(0x3000, 0x20);			//reset MCU	 
-	for(i=0;i<sizeof(OV5640_AF_Config);i++) //·¢ËÍÅäÖÃÊı×é
+{
+	u16 i;
+	u16 addr = 0x8000;
+	u8 state = 0x8F;
+	OV5640_WR_Reg(0x3000, 0x20);			//reset MCU
+	for (i = 0; i < sizeof(OV5640_AF_Config); i++) //å‘é€é…ç½®æ•°ç»„
 	{
-		OV5640_WR_Reg(addr,OV5640_AF_Config[i]);
+		OV5640_WR_Reg(addr, OV5640_AF_Config[i]);
 		addr++;
-	}  
-	OV5640_WR_Reg(0x3022,0x00);
-	OV5640_WR_Reg(0x3023,0x00);
-	OV5640_WR_Reg(0x3024,0x00);
-	OV5640_WR_Reg(0x3025,0x00);
-	OV5640_WR_Reg(0x3026,0x00);
-	OV5640_WR_Reg(0x3027,0x00);
-	OV5640_WR_Reg(0x3028,0x00);
-	OV5640_WR_Reg(0x3029,0x7f);
-	OV5640_WR_Reg(0x3000,0x00); 
-	i=0;
+	}
+	OV5640_WR_Reg(0x3022, 0x00);
+	OV5640_WR_Reg(0x3023, 0x00);
+	OV5640_WR_Reg(0x3024, 0x00);
+	OV5640_WR_Reg(0x3025, 0x00);
+	OV5640_WR_Reg(0x3026, 0x00);
+	OV5640_WR_Reg(0x3027, 0x00);
+	OV5640_WR_Reg(0x3028, 0x00);
+	OV5640_WR_Reg(0x3029, 0x7f);
+	OV5640_WR_Reg(0x3000, 0x00);
+	i = 0;
 	do
 	{
-		state=OV5640_RD_Reg(0x3029);	
+		state = OV5640_RD_Reg(0x3029);
 		delay_ms(5);
 		i++;
-		if(i>1000)return 1;
-	}while(state!=0x70); 
-	return 0;    
-}  
-//Ö´ĞĞÒ»´Î×Ô¶¯¶Ô½¹
-//·µ»ØÖµ:0,³É¹¦;1,Ê§°Ü.
+		if (i > 1000)return 1;
+	} while (state != 0x70);
+	return 0;
+}
+//æ‰§è¡Œä¸€æ¬¡è‡ªåŠ¨å¯¹ç„¦
+//è¿”å›å€¼:0,æˆåŠŸ;1,å¤±è´¥.
 u8 OV5640_Focus_Single(void)
 {
-	u8 temp; 
-	u16 retry=0; 
-	OV5640_WR_Reg(0x3022,0x03);		//´¥·¢Ò»´Î×Ô¶¯¶Ô½¹ 
-	while(1)
+	u8 temp;
+	u16 retry = 0;
+	OV5640_WR_Reg(0x3022, 0x03);		//è§¦å‘ä¸€æ¬¡è‡ªåŠ¨å¯¹ç„¦
+	while (1)
 	{
 		retry++;
-		temp=OV5640_RD_Reg(0x3029);	//¼ì²é¶Ô½¹Íê³É×´Ì¬
-		if(temp==0x10)break;		// focus completed
+		temp = OV5640_RD_Reg(0x3029);	//æ£€æŸ¥å¯¹ç„¦å®ŒæˆçŠ¶æ€
+		if (temp == 0x10)break;		// focus completed
 		delay_ms(5);
-		if(retry>1000)return 1;
+		if (retry > 1000)return 1;
 	}
-	return 0;	 		
+	return 0;
 }
-//³ÖĞø×Ô¶¯¶Ô½¹,µ±Ê§½¹ºó,»á×Ô¶¯¼ÌĞø¶Ô½¹
-//·µ»ØÖµ:0,³É¹¦;ÆäËû,Ê§°Ü.
+//æŒç»­è‡ªåŠ¨å¯¹ç„¦,å½“å¤±ç„¦å,ä¼šè‡ªåŠ¨ç»§ç»­å¯¹ç„¦
+//è¿”å›å€¼:0,æˆåŠŸ;å…¶ä»–,å¤±è´¥.
 u8 OV5640_Focus_Constant(void)
 {
-	u8 temp=0;   
-	u16 retry=0; 
-	OV5640_WR_Reg(0x3023,0x01);
-	OV5640_WR_Reg(0x3022,0x08);//·¢ËÍIDLEÖ¸Áî 
-	do 
+	u8 temp = 0;
+	u16 retry = 0;
+	OV5640_WR_Reg(0x3023, 0x01);
+	OV5640_WR_Reg(0x3022, 0x08); //å‘é€IDLEæŒ‡ä»¤
+	do
 	{
-		temp=OV5640_RD_Reg(0x3023); 
+		temp = OV5640_RD_Reg(0x3023);
 		retry++;
-		if(retry>1000)return 2;
+		if (retry > 1000)return 2;
 		delay_ms(5);
-	} while(temp!=0x00);   
-	OV5640_WR_Reg(0x3023,0x01);
-	OV5640_WR_Reg(0x3022,0x04);//·¢ËÍ³ÖĞø¶Ô½¹Ö¸Áî 
-	retry=0;
-	do 
+	} while (temp != 0x00);
+	OV5640_WR_Reg(0x3023, 0x01);
+	OV5640_WR_Reg(0x3022, 0x04); //å‘é€æŒç»­å¯¹ç„¦æŒ‡ä»¤
+	retry = 0;
+	do
 	{
-		temp=OV5640_RD_Reg(0x3023); 
+		temp = OV5640_RD_Reg(0x3023);
 		retry++;
-		if(retry>1000)return 2;
+		if (retry > 1000)return 2;
 		delay_ms(5);
-	}while(temp!=0x00);//0,¶Ô½¹Íê³É;1:ÕıÔÚ¶Ô½¹
+	} while (temp != 0x00); //0,å¯¹ç„¦å®Œæˆ;1:æ­£åœ¨å¯¹ç„¦
 	return 0;
-} 
+}
 
 
 

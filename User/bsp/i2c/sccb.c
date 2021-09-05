@@ -5,21 +5,21 @@
 
 void SCCB_Delay(void)
 {
-    delay_us(5);
+	delay_us(5);
 }
 
 //初始化SCCB接口
 void SCCB_Init(void)
 {
-    GPIO_InitTypeDef GPIO_Initure;
-    __HAL_RCC_GPIOB_CLK_ENABLE();           //使能GPIOB时钟
+	GPIO_InitTypeDef GPIO_Initure;
+	__HAL_RCC_GPIOB_CLK_ENABLE();           //使能GPIOB时钟
 
-    //PB3.4初始化设置
-    GPIO_Initure.Pin = GPIO_PIN_3 | GPIO_PIN_4;
-    GPIO_Initure.Mode = GPIO_MODE_OUTPUT_PP; //推挽输出
-    GPIO_Initure.Pull = GPIO_PULLUP;        //上拉
-    GPIO_Initure.Speed = GPIO_SPEED_FAST;   //快速
-    HAL_GPIO_Init(GPIOB, &GPIO_Initure);
+	//PB3.4初始化设置
+	GPIO_Initure.Pin = GPIO_PIN_3 | GPIO_PIN_4;
+	GPIO_Initure.Mode = GPIO_MODE_OUTPUT_PP; //推挽输出
+	GPIO_Initure.Pull = GPIO_PULLUP;        //上拉
+	GPIO_Initure.Speed = GPIO_SPEED_FAST;   //快速
+	HAL_GPIO_Init(GPIOB, &GPIO_Initure);
 }
 
 //SCCB起始信号
@@ -27,12 +27,12 @@ void SCCB_Init(void)
 //在激活状态下,SDA和SCL均为低电平
 void SCCB_Start(void)
 {
-    SCCB_SDA(1);     //数据线高电平
-    SCCB_SCL(1);        //在时钟线高的时候数据线由高至低
-    SCCB_Delay();
-    SCCB_SDA(0);
-    SCCB_Delay();
-    SCCB_SCL(0);        //数据线恢复低电平，单操作函数必要
+	SCCB_SDA(1);     //数据线高电平
+	SCCB_SCL(1);        //在时钟线高的时候数据线由高至低
+	SCCB_Delay();
+	SCCB_SDA(0);
+	SCCB_Delay();
+	SCCB_SCL(0);        //数据线恢复低电平，单操作函数必要
 }
 
 //SCCB停止信号
@@ -40,68 +40,68 @@ void SCCB_Start(void)
 //空闲状况下,SDA,SCL均为高电平
 void SCCB_Stop(void)
 {
-    SCCB_SDA(0);
-    SCCB_Delay();
-    SCCB_SCL(1);
-    SCCB_Delay();
-    SCCB_SDA(1);
-    SCCB_Delay();
+	SCCB_SDA(0);
+	SCCB_Delay();
+	SCCB_SCL(1);
+	SCCB_Delay();
+	SCCB_SDA(1);
+	SCCB_Delay();
 }
 //产生NA信号
 void SCCB_No_Ack(void)
 {
-    SCCB_Delay();
-    SCCB_SDA(1);
-    SCCB_SCL(1);
-    SCCB_Delay();
-    SCCB_SCL(0);
-    SCCB_Delay();
-    SCCB_SDA(0);
-    SCCB_Delay();
+	SCCB_Delay();
+	SCCB_SDA(1);
+	SCCB_SCL(1);
+	SCCB_Delay();
+	SCCB_SCL(0);
+	SCCB_Delay();
+	SCCB_SDA(0);
+	SCCB_Delay();
 }
 //SCCB,写入一个字节
 //返回值:0,成功;1,失败.
 uint8_t SCCB_WR_Byte(uint8_t dat)
 {
-    uint8_t j, res;
-    for (j = 0; j < 8; j++) //循环8次发送数据
-    {
-        if (dat & 0x80)SCCB_SDA(1);
-        else SCCB_SDA(0);
-        dat <<= 1;
-        SCCB_Delay();
-        SCCB_SCL(1);
-        SCCB_Delay();
-        SCCB_SCL(0);
-    }
-    SCCB_SDA_IN();      //设置SDA为输入
-    SCCB_Delay();
-    SCCB_SCL(1);            //接收第九位,以判断是否发送成功
-    SCCB_Delay();
-    if (SCCB_READ_SDA)res = 1; //SDA=1发送失败，返回1
-    else res = 0;       //SDA=0发送成功，返回0
-    SCCB_SCL(0);
-    SCCB_SDA_OUT();     //设置SDA为输出
-    return res;
+	uint8_t j, res;
+	for (j = 0; j < 8; j++) //循环8次发送数据
+	{
+		if (dat & 0x80)SCCB_SDA(1);
+		else SCCB_SDA(0);
+		dat <<= 1;
+		SCCB_Delay();
+		SCCB_SCL(1);
+		SCCB_Delay();
+		SCCB_SCL(0);
+	}
+	SCCB_SDA_IN();      //设置SDA为输入
+	SCCB_Delay();
+	SCCB_SCL(1);            //接收第九位,以判断是否发送成功
+	SCCB_Delay();
+	if (SCCB_READ_SDA)res = 1; //SDA=1发送失败，返回1
+	else res = 0;       //SDA=0发送成功，返回0
+	SCCB_SCL(0);
+	SCCB_SDA_OUT();     //设置SDA为输出
+	return res;
 }
 //SCCB 读取一个字节
 //在SCL的上升沿,数据锁存
 //返回值:读到的数据
 uint8_t SCCB_RD_Byte(void)
 {
-    uint8_t temp = 0, j;
-    SCCB_SDA_IN();      //设置SDA为输入
-    for (j = 8; j > 0; j--) //循环8次接收数据
-    {
-        SCCB_Delay();
-        SCCB_SCL(1);
-        temp = temp << 1;
-        if (SCCB_READ_SDA)temp++;
-        SCCB_Delay();
-        SCCB_SCL(0);
-    }
-    SCCB_SDA_OUT();     //设置SDA为输出
-    return temp;
+	uint8_t temp = 0, j;
+	SCCB_SDA_IN();      //设置SDA为输入
+	for (j = 8; j > 0; j--) //循环8次接收数据
+	{
+		SCCB_Delay();
+		SCCB_SCL(1);
+		temp = temp << 1;
+		if (SCCB_READ_SDA)temp++;
+		SCCB_Delay();
+		SCCB_SCL(0);
+	}
+	SCCB_SDA_OUT();     //设置SDA为输出
+	return temp;
 }
 ////写寄存器
 ////返回值:0,成功;1,失败.
@@ -142,34 +142,34 @@ uint8_t SCCB_RD_Byte(void)
 //检测指定地址是否存在设备
 uint8_t SCCB_AddrCheck(uint8_t addr)
 {
-    uint8_t state;
-    SCCB_Start();
+	uint8_t state;
+	SCCB_Start();
 
-    state = SCCB_WR_Byte(addr);
-    SCCB_Stop();
+	state = SCCB_WR_Byte(addr);
+	SCCB_Stop();
 
-    return state;
+	return state;
 }
 //扫描i2c从机设备
-void sccbscan(void)
+void sccb_scan(void)
 {
-    uint8_t u8I2cAddr;
+	uint8_t u8I2cAddr;
 
-    PCF8574_WriteBit(DCMI_PWDN_IO, 0); //开启DCMI电源
-    rt_kprintf("scanning sccb.... \r\n");
-    for (u8I2cAddr = 1; u8I2cAddr < 127; u8I2cAddr++)
-    {
-        if (SCCB_AddrCheck(u8I2cAddr << 1) == 0)
-        {
-            rt_kprintf("sccb addr: 0x%x alive \r\n", u8I2cAddr);
-            //          vDebug("alive \r\n");
-        }
-        else
-        {
-            //          vDebug_Error("nofind \r\n");
-        }
-        SCCB_Stop();
-    }
+	PCF8574_WriteBit(DCMI_PWDN_IO, 0); //开启DCMI电源
+	rt_kprintf("scanning sccb.... \r\n");
+	for (u8I2cAddr = 1; u8I2cAddr < 127; u8I2cAddr++)
+	{
+		if (SCCB_AddrCheck(u8I2cAddr << 1) == 0)
+		{
+			rt_kprintf("sccb addr: 0x%x alive \r\n", u8I2cAddr);
+			//          vDebug("alive \r\n");
+		}
+		else
+		{
+			//          vDebug_Error("nofind \r\n");
+		}
+		SCCB_Stop();
+	}
 }
 
-MSH_CMD_EXPORT(sccbscan, scan sccb device);
+MSH_CMD_EXPORT(sccb_scan, scan sccb device);
