@@ -32,7 +32,7 @@ static void vGpio_SetClock(GPIO_TypeDef * GPIOx)
 		__GPIOK_CLK_ENABLE();
 #endif
 	else
-		rt_kprintf("%s,%d fail \n",__FUNCTION__,__LINE__);
+		rt_kprintf("%s,%d fail \r\n",__FUNCTION__,__LINE__);
 }
 
 //满足一般gpio初始化的函数封装
@@ -69,7 +69,7 @@ static void gpio_init_cmd(int argc, char**argv)
 
 	if(argc < 3)
 	{
-		rt_kprintf("please input:GPIOx<a~k|A~K> Pinx<0~15> mode<i/I|o/U|f/F> pull<H/L>\n");
+		rt_kprintf("please input:GPIOx<a~k|A~K> Pinx<0~15> mode<i/I|o/U|f/F> pull<H/L> \r\n");
 		return;
 	}
 
@@ -84,7 +84,7 @@ static void gpio_init_cmd(int argc, char**argv)
 	}
 	else
 	{
-		rt_kprintf("input GPIO%c not find \n",argv[1][0]);
+		rt_kprintf("input GPIO%c not find \r\n",argv[1][0]);
 		return;
 	}
 
@@ -92,14 +92,14 @@ static void gpio_init_cmd(int argc, char**argv)
 	Pinx = atoi(argv[2]);
 	if(Pinx > 15)
 	{
-		rt_kprintf("input Pin%d not find \n",Pinx);
+		rt_kprintf("input Pin%d not find \r\n",Pinx);
 		return;
 	}
 	Pinx = 1 << Pinx;
 
 	if(3 == argc)
 	{
-		rt_kprintf("GPIO%c.%d = %d \n",argv[1][0],atoi(argv[2]),HAL_GPIO_ReadPin(GPIOx,Pinx));
+		rt_kprintf("GPIO%c.%d = %d \r\n",argv[1][0],atoi(argv[2]),HAL_GPIO_ReadPin(GPIOx,Pinx));
 		return;
 	}
 
@@ -112,14 +112,14 @@ static void gpio_init_cmd(int argc, char**argv)
 		Mode = GPIO_MODE_AF_PP;
 	else
 	{
-		rt_kprintf("input mode:%s error \n",argv[3]);
+		rt_kprintf("input mode:%s error \r\n",argv[3]);
 		return;
 	}
 
 	if(4 == argc)
 	{
 		gpio_init(GPIOx,Pinx,Mode,Pull);
-		rt_kprintf("GPIO%c.%d set mode:%s pullup \n",argv[1][0],atoi(argv[2]),argv[3]);
+		rt_kprintf("GPIO%c.%d set mode:%s pullup \r\n",argv[1][0],atoi(argv[2]),argv[3]);
 		return;
 	}
 
@@ -130,14 +130,14 @@ static void gpio_init_cmd(int argc, char**argv)
 		Pull = GPIO_PULLDOWN;
 	else
 	{
-		rt_kprintf("input pull mode:%s error \n",argv[4]);
+		rt_kprintf("input pull mode:%s error \r\n",argv[4]);
 		return;
 	}
 	
 	if(5 == argc)
 	{
 		gpio_init(GPIOx,Pinx,Mode,Pull);
-		rt_kprintf("GPIO%c.%d set mode:%s pull:%s \n",argv[1][0],atoi(argv[2]),argv[3],argv[4]);
+		rt_kprintf("GPIO%c.%d set mode:%s pull:%s \r\n",argv[1][0],atoi(argv[2]),argv[3],argv[4]);
 		return;
 	}
 
@@ -152,7 +152,7 @@ static void gpio_out_set_cmd(int argc,char**argv)
 	
 	if(argc < 4)
 	{
-		rt_kprintf("please input:GPIOx<a~k|A~K> Pinx<0~15> state<h/l|H/L|1/0>\n");
+		rt_kprintf("please input:GPIOx<a~k|A~K> Pinx<0~15> state<h/l|H/L|1/0> \r\n");
 		return;
 	}
 
@@ -167,7 +167,7 @@ static void gpio_out_set_cmd(int argc,char**argv)
 	}
 	else
 	{
-		rt_kprintf("input GPIO%c not find \n",argv[1][0]);
+		rt_kprintf("input GPIO%c not find \r\n",argv[1][0]);
 		return;
 	}
 
@@ -175,7 +175,7 @@ static void gpio_out_set_cmd(int argc,char**argv)
 	Pinx = atoi(argv[2]);
 	if(Pinx > 15)
 	{
-		rt_kprintf("input Pin%d not find \n",Pinx);
+		rt_kprintf("input Pin%d not find \r\n",Pinx);
 		return;
 	}
 	Pinx = 1 << Pinx;
@@ -191,7 +191,7 @@ static void gpio_out_set_cmd(int argc,char**argv)
 	}
 	else
 	{
-		rt_kprintf("input PinState:%s error \n",argv[3][0]);
+		rt_kprintf("input PinState:%s error \r\n",argv[3][0]);
 		return;
 	}
 
@@ -221,7 +221,7 @@ static void gpio_state_get_cmd(int argc,char**argv)
 	}
 	else
 	{
-		rt_kprintf("input GPIO%c not find \n",argv[1][0]);
+		rt_kprintf("input GPIO%c not find \r\n",argv[1][0]);
 		return;
 	}
 
@@ -229,12 +229,12 @@ static void gpio_state_get_cmd(int argc,char**argv)
 	Pinx = atoi(argv[2]);
 	if(Pinx > 15)
 	{
-		rt_kprintf("input Pin%d not find \n",Pinx);
+		rt_kprintf("input Pin%d not find \r\n",Pinx);
 		return;
 	}
 	Pinx = 1 << Pinx;
 
-	rt_kprintf("GPIO%c.%d = %d \n",argv[1][0],atoi(argv[2]),HAL_GPIO_ReadPin(GPIOx,Pinx));
+	rt_kprintf("GPIO%c.%d = %d \r\n",argv[1][0],atoi(argv[2]),HAL_GPIO_ReadPin(GPIOx,Pinx));
 }
 FINSH_FUNCTION_EXPORT_ALIAS(gpio_state_get_cmd, __cmd_gpio_state_get, gpio state get:GPIOx<a~k|A~K> Pinx<0~15> );
 
